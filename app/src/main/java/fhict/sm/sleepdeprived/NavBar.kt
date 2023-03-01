@@ -14,6 +14,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import fhict.sm.sleepdeprived.ui.theme.Blue
 import fhict.sm.sleepdeprived.ui.theme.DarkBlue
 import fhict.sm.sleepdeprived.ui.theme.Gray
 import fhict.sm.sleepdeprived.ui.theme.White
@@ -55,7 +56,7 @@ fun BottomNavigationBar(
                     bottomEnd = 0.dp
                 )
             ),
-        backgroundColor = DarkBlue,
+        backgroundColor = Blue,
         elevation = 5.dp,
 
         ){

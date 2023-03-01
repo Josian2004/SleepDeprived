@@ -1,5 +1,6 @@
 package fhict.sm.sleepdeprived
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,6 +19,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SleepDeprivedTheme {
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
                 val navController = rememberNavController()
                 Scaffold(
@@ -33,13 +35,13 @@ class MainActivity : ComponentActivity() {
                                     name = "Home",
                                     route = "home",
                                     icon = Icons.Filled.Home,
-                                    badgeCount = 23
+//                                    badgeCount = 23
                                 ),
                                 BottomNavItem(
                                     name = "Sleep Schedule",
                                     route = "sleep",
                                     icon = Icons.Filled.WatchLater,
-                                    badgeCount = 214
+//                                    badgeCount = 214
                                 ),
                             ),
                             navController = navController,
