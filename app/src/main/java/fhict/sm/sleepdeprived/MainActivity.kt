@@ -76,24 +76,16 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
-                ) {
-                    Navigation(navController = navController)
+                ) {innerPadding ->
+                    Box(modifier = Modifier.padding(innerPadding)) {
+                        Navigation(navController = navController)
+                    }
                 }
 
             }
         }
     }
 
-}
-
-@Composable
-fun InfoScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Sleep Tips screen")
-    }
 }
 
 @Composable
