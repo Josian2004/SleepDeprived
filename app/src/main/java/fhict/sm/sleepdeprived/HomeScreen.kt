@@ -39,16 +39,18 @@ fun HomeScreen() {
             .background(MaterialTheme.colors.background)
             .verticalScroll(enabled = true, state = rememberScrollState())
     ) {
-        Header()
+        HomeHeader()
         History()
         Data()
         Caffeine()
-        Spacer(modifier = Modifier.height(10.dp))
+
+        Spacer(modifier = Modifier.height(20.dp)
+)
     }
 }
 
 @Composable
-fun Header() {
+fun HomeHeader() {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
