@@ -29,20 +29,27 @@ import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.lifecycle.viewmodel.compose.viewModel
+import fhict.sm.sleepdeprived.homescreen.HomeUiState
+import fhict.sm.sleepdeprived.homescreen.HomeViewModel
 
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    homeViewModel: HomeViewModel = viewModel()
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
             .verticalScroll(enabled = true, state = rememberScrollState())
     ) {
+        val homeUiState by homeViewModel.uiState.collectAsState()
+
         HomeHeader()
         History()
-        Data()
-        Caffeine()
+        Data(homeUiState.timeAsleep, homeUiState.fromTil, homeUiState.rateSleepSliderPosition)
+        Caffeine(homeUiState.amountDrinks, homeUiState.timeLastDrink)
 
         Spacer(modifier = Modifier.height(20.dp)
 )
@@ -90,15 +97,19 @@ fun History() {
             .clip(RoundedCornerShape(9.dp))
             .background(MaterialTheme.colors.primary)
             .height(80.dp)
-            .horizontalScroll(enabled = true, state = rememberScrollState(), reverseScrolling = true)
+            .horizontalScroll(
+                enabled = true,
+                state = rememberScrollState(),
+                reverseScrolling = true
+            )
 
     ) {
-        progress(SleptHours)
+        Progress(SleptHours)
     }
 }
 
 @Composable
-fun progress(SleptHours: Array<Float>) {
+fun Progress(SleptHours: Array<Float>) {
     val Days = arrayOf("21/2", "22/2", "23/2", "24/2", "25/2", "26/2", "27/2", "28/2", "1/3", "2/3")
     var lastDayDP = 0.dp
     var i = 0
@@ -200,7 +211,7 @@ fun CircularProgressbar2(
 }
 
 @Composable
-fun Data() {
+fun Data(timeAsleep: String, fromTil: String, sliderPosition: Float) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -229,7 +240,7 @@ fun Data() {
                     modifier = Modifier.offset(x = 0.dp, y = 5.dp)
                 )
                 Text(
-                    text = "8h 12m",
+                    text = timeAsleep,
                     fontSize = 20.sp,
                     color = MaterialTheme.colors.onPrimary,
                     modifier = Modifier.offset(x = 23.dp, y = 0.dp)
@@ -257,7 +268,7 @@ fun Data() {
                     modifier = Modifier.offset(x = (-2).dp, y = 5.dp)
                 )
                 Text(
-                    text = "01:13-09:32",
+                    text = fromTil,
                     fontSize = 20.sp,
                     color = MaterialTheme.colors.onPrimary,
                     modifier = Modifier.offset(x = 23.dp, y = 0.dp)
@@ -311,7 +322,7 @@ fun Data() {
 }
 
 @Composable
-fun Caffeine() {
+fun Caffeine(amountDrinks: Int, timeLastDrink: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -340,7 +351,7 @@ fun Caffeine() {
                     modifier = Modifier.offset(x = 0.dp, y = 5.dp)
                 )
                 Text(
-                    text = "6",
+                    text = amountDrinks.toString(),
                     fontSize = 20.sp,
                     color = MaterialTheme.colors.onPrimary,
                     modifier = Modifier.offset(x = 26.dp, y = 0.dp)
@@ -369,7 +380,7 @@ fun Caffeine() {
                     modifier = Modifier.offset(x = (-2).dp, y = 5.dp)
                 )
                 Text(
-                    text = "1h 58m",
+                    text = timeLastDrink,
                     fontSize = 20.sp,
                     color = MaterialTheme.colors.onPrimary,
                     modifier = Modifier.offset(x = 23.dp, y = 0.dp)
