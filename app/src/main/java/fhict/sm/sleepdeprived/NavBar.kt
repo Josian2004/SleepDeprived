@@ -22,7 +22,7 @@ import fhict.sm.sleepdeprived.ui.theme.White
 
 @Composable
 fun Navigation(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = "info") {
+    NavHost(navController = navController, startDestination = "home") {
         composable("home") {
             HomeScreen()
         }
