@@ -25,6 +25,10 @@ import androidx.compose.ui.unit.sp
 import fhict.sm.sleepdeprived.ui.theme.aBeeZeeFamily
 
 
+class TipObject(val title: String, val paragraph: String, val imageId: Int) {
+}
+
+
 
 @Composable
 fun InfoScreen() {
@@ -125,15 +129,25 @@ fun TipCharacter() {
 
 @Composable
 fun TipList() {
+    val paragraph = "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus. Nullam quis imperdiet augue. Vestibulum auctor ornare leo, non suscipit magna interdum eu. Curabitur pellentesque nibh nibh, at maximus ante fermentum sit amet. Pellentesque commodo lacus at sodales sodales."
+    val tips = arrayListOf<TipObject>(
+        TipObject("Tips on how to reduce noise in your bedroom during the night", paragraph, R.drawable.noise_bedroom_stock),
+        TipObject("Drink less caffeinated drinks before you go to bed", paragraph, R.drawable.coffee_stock),
+        TipObject("Drink less caffeinated drinks before you go to bed", paragraph, R.drawable.temperature_stock)
+    )
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        Tip(
-            title = "Tips on how to reduce noise in your bedroom during the night",
-            paragraph = "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus. Nullam quis imperdiet augue. Vestibulum auctor ornare leo, non suscipit magna interdum eu. Curabitur pellentesque nibh nibh, at maximus ante fermentum sit amet. Pellentesque commodo lacus at sodales sodales.",
-            imageId = R.drawable.noise_bedroom_stock)
+        tips.forEach {
+                tipObject ->
+                Tip(
+                    title = tipObject.title,
+                    paragraph = tipObject.paragraph,
+                    imageId = tipObject.imageId
+                )
+        }
     }
 }
 
@@ -143,7 +157,6 @@ fun Tip(title: String, paragraph: String, imageId: Int) {
         modifier = Modifier
             .clip(RoundedCornerShape(9.dp))
             .width(300.dp)
-            .height(180.dp)
             .background(MaterialTheme.colors.primary),
         contentAlignment = Alignment.Center
 
@@ -152,15 +165,18 @@ fun Tip(title: String, paragraph: String, imageId: Int) {
             .fillMaxSize()
             .padding(10.dp)
         ) {
-            Row(modifier = Modifier.fillMaxWidth().border(width = 1.dp, Color.Red)) {
+            Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = title,
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    modifier = Modifier.weight(1f)
                 )
                 Image(
                     painter = painterResource(id = imageId),
                     contentDescription = "Tip Picture",
-                    modifier = Modifier.border(width = 1.dp, Color.Red).width(200.dp)
+                    modifier = Modifier
+                        .width(200.dp)
+                        .weight(1f)
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
@@ -171,6 +187,7 @@ fun Tip(title: String, paragraph: String, imageId: Int) {
         }
 
     }
+    Spacer(modifier = Modifier.height(20.dp))
 }
 
 
