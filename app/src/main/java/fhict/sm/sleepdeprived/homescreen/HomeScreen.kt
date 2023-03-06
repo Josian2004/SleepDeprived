@@ -48,8 +48,8 @@ fun HomeScreen(
 
         HomeHeader()
         History()
-        Data(homeUiState.timeAsleep, homeUiState.fromTil, homeUiState.rateSleepSliderPosition)
-        Caffeine(homeUiState.amountDrinks, homeUiState.timeLastDrink)
+        Data(homeUiState.timeAsleep, homeUiState.fromTil, homeUiState.rateSleepSliderPosition, homeViewModel::changeRateSleepSliderPos)
+        Caffeine(homeUiState.amountDrinks, homeUiState.timeLastDrink, homeViewModel::addDrink)
 
         Spacer(modifier = Modifier.height(20.dp)
 )
@@ -211,7 +211,7 @@ fun CircularProgressbar2(
 }
 
 @Composable
-fun Data(timeAsleep: String, fromTil: String, sliderPosition: Float) {
+fun Data(timeAsleep: String, fromTil: String, sliderPosition: Float, changeSliderPos: (sliderPos: Float) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -296,10 +296,10 @@ fun Data(timeAsleep: String, fromTil: String, sliderPosition: Float) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.height(30.dp)) {
-                var sliderPosition by remember { mutableStateOf(0f) }
+                //var sliderPosition by remember { mutableStateOf(0f) }
                 Slider(
                     value = sliderPosition,
-                    onValueChange = { sliderPosition = it },
+                    onValueChange = { changeSliderPos(it) },
                     valueRange = 1f..10f,
                     steps = 8,
 
@@ -322,7 +322,7 @@ fun Data(timeAsleep: String, fromTil: String, sliderPosition: Float) {
 }
 
 @Composable
-fun Caffeine(amountDrinks: Int, timeLastDrink: String) {
+fun Caffeine(amountDrinks: Int, timeLastDrink: String, addDrink: (currentAmount: Int) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -411,6 +411,7 @@ fun Caffeine(amountDrinks: Int, timeLastDrink: String) {
                 .size(50.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colors.background)
+                .clickable { addDrink(amountDrinks) }
 
         ) {
             Box() {
