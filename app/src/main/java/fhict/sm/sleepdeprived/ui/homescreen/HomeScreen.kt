@@ -18,26 +18,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import fhict.sm.sleepdeprived.ui.homescreen.HomeUiState
+import fhict.sm.sleepdeprived.ui.homescreen.HomeViewModel
 import fhict.sm.sleepdeprived.ui.theme.aBeeZeeFamily
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.lifecycle.viewmodel.compose.viewModel
-import fhict.sm.sleepdeprived.homescreen.HomeUiState
-import fhict.sm.sleepdeprived.homescreen.HomeViewModel
 
 
 @Composable
 fun HomeScreen(
-    homeViewModel: HomeViewModel = viewModel()
+    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -48,7 +47,7 @@ fun HomeScreen(
 
         HomeHeader()
         History()
-        Data(homeUiState.timeAsleep, homeUiState.fromTil, homeUiState.rateSleepSliderPosition, homeViewModel::changeRateSleepSliderPos)
+        Data(homeUiState, homeViewModel::changeRateSleepSliderPos)
         Caffeine(homeUiState.amountDrinks, homeUiState.timeLastDrink, homeViewModel::addDrink)
 
         Spacer(modifier = Modifier.height(20.dp)
@@ -64,7 +63,7 @@ fun HomeHeader() {
 
     ) {
         Text(
-            text = "Home",
+            text = "Statistics",
             fontFamily = aBeeZeeFamily,
             fontWeight = FontWeight.Normal,
             color = MaterialTheme.colors.onPrimary,
@@ -211,7 +210,7 @@ fun CircularProgressbar2(
 }
 
 @Composable
-fun Data(timeAsleep: String, fromTil: String, sliderPosition: Float, changeSliderPos: (sliderPos: Float) -> Unit) {
+fun Data(uiState: HomeUiState, changeSliderPos: (sliderPos: Float) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -240,7 +239,7 @@ fun Data(timeAsleep: String, fromTil: String, sliderPosition: Float, changeSlide
                     modifier = Modifier.offset(x = 0.dp, y = 5.dp)
                 )
                 Text(
-                    text = timeAsleep,
+                    text = uiState.timeAsleep,
                     fontSize = 20.sp,
                     color = MaterialTheme.colors.onPrimary,
                     modifier = Modifier.offset(x = 23.dp, y = 0.dp)
@@ -268,7 +267,7 @@ fun Data(timeAsleep: String, fromTil: String, sliderPosition: Float, changeSlide
                     modifier = Modifier.offset(x = (-2).dp, y = 5.dp)
                 )
                 Text(
-                    text = fromTil,
+                    text = uiState.fromTil,
                     fontSize = 20.sp,
                     color = MaterialTheme.colors.onPrimary,
                     modifier = Modifier.offset(x = 23.dp, y = 0.dp)
@@ -298,10 +297,11 @@ fun Data(timeAsleep: String, fromTil: String, sliderPosition: Float, changeSlide
             Box(modifier = Modifier.height(30.dp)) {
                 //var sliderPosition by remember { mutableStateOf(0f) }
                 Slider(
-                    value = sliderPosition,
+                    value = uiState.rateSleepSliderPosition,
                     onValueChange = { changeSliderPos(it) },
                     valueRange = 1f..10f,
                     steps = 8,
+                    enabled = uiState.rateSleepSliderEnabled,
 
                     colors = SliderDefaults.colors(
                         thumbColor = MaterialTheme.colors.onPrimary,

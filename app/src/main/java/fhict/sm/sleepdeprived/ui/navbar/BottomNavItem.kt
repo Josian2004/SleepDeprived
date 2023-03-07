@@ -1,4 +1,4 @@
-package fhict.sm.sleepdeprived
+package fhict.sm.sleepdeprived.ui.navbar
 
 import androidx.compose.ui.graphics.vector.ImageVector
 

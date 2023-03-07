@@ -1,4 +1,4 @@
-package fhict.sm.sleepdeprived
+package fhict.sm.sleepdeprived.ui.navbar
 
 
 import androidx.compose.foundation.layout.*
@@ -14,16 +14,22 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import fhict.sm.sleepdeprived.HomeScreen
+import fhict.sm.sleepdeprived.InfoScreen
+import fhict.sm.sleepdeprived.SleepScreen
+import fhict.sm.sleepdeprived.ui.startscreen.StartScreen
 import fhict.sm.sleepdeprived.ui.theme.Blue
-import fhict.sm.sleepdeprived.ui.theme.DarkBlue
 import fhict.sm.sleepdeprived.ui.theme.Gray
 import fhict.sm.sleepdeprived.ui.theme.White
 
 
 @Composable
 fun Navigation(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = "home") {
-        composable("home") {
+    NavHost(navController = navController, startDestination = "start") {
+        composable("start") {
+            StartScreen()
+        }
+        composable("stats") {
             HomeScreen()
         }
         composable("info") {
