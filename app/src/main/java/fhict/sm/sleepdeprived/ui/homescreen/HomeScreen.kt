@@ -322,7 +322,7 @@ fun Data(uiState: HomeUiState, changeSliderPos: (sliderPos: Float) -> Unit) {
 }
 
 @Composable
-fun Caffeine(amountDrinks: Int, timeLastDrink: String, addDrink: (currentAmount: Int) -> Unit) {
+fun Caffeine(amountDrinks: Int, timeLastDrink: String, addDrink: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -411,7 +411,7 @@ fun Caffeine(amountDrinks: Int, timeLastDrink: String, addDrink: (currentAmount:
                 .size(50.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colors.background)
-                .clickable { addDrink(amountDrinks) }
+                .clickable { addDrink() }
 
         ) {
             Box() {

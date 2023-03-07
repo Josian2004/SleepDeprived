@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "7d4c7b71e961a20099e084e8bd38374d",
+    "identityHash": "7b6aa8d54b49e05b54fae1ca3157485a",
     "entities": [
       {
         "tableName": "sleep_segment_table",
@@ -59,12 +59,38 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "caffeine_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`intake_moment` INTEGER NOT NULL, `id` BLOB NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "intakeMoment",
+            "columnName": "intake_moment",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "BLOB",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7d4c7b71e961a20099e084e8bd38374d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7b6aa8d54b49e05b54fae1ca3157485a')"
     ]
   }
 }

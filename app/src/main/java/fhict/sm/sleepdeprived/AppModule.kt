@@ -9,6 +9,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import fhict.sm.sleepdeprived.data.AppDatabase
+import fhict.sm.sleepdeprived.data.caffeine.db.CaffeineDao
 import fhict.sm.sleepdeprived.data.sleep.db.SleepSegmentDao
 import javax.inject.Singleton
 
@@ -19,6 +20,11 @@ class AppModule {
     @Provides
     fun provideSleepSegmentDao(appDatabase: AppDatabase): SleepSegmentDao {
         return appDatabase.sleepSegmentDao()
+    }
+
+    @Provides
+    fun provideCaffeineDao(appDatabase: AppDatabase): CaffeineDao {
+        return appDatabase.caffeineDao()
     }
 
     @Provides
