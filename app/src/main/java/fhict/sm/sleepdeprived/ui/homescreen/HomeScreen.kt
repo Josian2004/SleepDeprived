@@ -18,31 +18,42 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import fhict.sm.sleepdeprived.ui.homescreen.HomeUiState
+import fhict.sm.sleepdeprived.ui.homescreen.HomeViewModel
 import fhict.sm.sleepdeprived.ui.theme.aBeeZeeFamily
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    homeViewModel: HomeViewModel = hiltViewModel()
+) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
             .verticalScroll(enabled = true, state = rememberScrollState())
     ) {
+        val homeUiState by homeViewModel.uiState.collectAsState()
+
+        /*Button(onClick = { homeViewModel.test() }) {
+            Text(text = "Add Test Data")
+        }*/
+        
         HomeHeader()
-        History()
-        Data()
-        Caffeine()
+        History(homeUiState, homeViewModel::historyPressed)
+        Data(homeUiState, homeViewModel::changeRateSleepSliderPos)
+        Caffeine(homeUiState.amountDrinks, homeUiState.timeLastDrink, homeViewModel::addDrink)
 
         Spacer(modifier = Modifier.height(20.dp)
 )
@@ -57,7 +68,7 @@ fun HomeHeader() {
 
     ) {
         Text(
-            text = "Home",
+            text = "Statistics",
             fontFamily = aBeeZeeFamily,
             fontWeight = FontWeight.Normal,
             color = MaterialTheme.colors.onPrimary,
@@ -81,8 +92,8 @@ fun HomeHeader() {
 }
 
 @Composable
-fun History() {
-    val SleptHours = arrayOf(4f, 7f, 6f, 7f, 3f, 8f, 4f, 5f, 6f, 7f,)
+fun History(uiState: HomeUiState, historyPressed: (day: String) -> Unit) {
+    //val SleptHours = arrayOf(4f, 7f, 6f, 7f, 3f, 8f, 4f, 5f, 6f, 7f,)
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -90,32 +101,52 @@ fun History() {
             .clip(RoundedCornerShape(9.dp))
             .background(MaterialTheme.colors.primary)
             .height(80.dp)
-            .horizontalScroll(enabled = true, state = rememberScrollState(), reverseScrolling = true)
+            .horizontalScroll(
+                enabled = true,
+                state = rememberScrollState(),
+                reverseScrolling = true
+            )
 
     ) {
-        progress(SleptHours)
+        Progress(uiState, historyPressed)
     }
 }
 
 @Composable
-fun progress(SleptHours: Array<Float>) {
-    val Days = arrayOf("21/2", "22/2", "23/2", "24/2", "25/2", "26/2", "27/2", "28/2", "1/3", "2/3")
+fun Progress(uiState: HomeUiState, historyPressed: (day: String) -> Unit) {
+    //val Days = arrayOf("21/2", "22/2", "23/2", "24/2", "25/2", "26/2", "27/2", "28/2", "1/3", "2/3")
     var lastDayDP = 0.dp
     var i = 0
     Box(){
         Row() {
-            Days.forEach { item ->
+            uiState.historyList.forEach { item ->
                 i++
-                if(i == Days.size){
+                if(i == uiState.historyList.size){
                     lastDayDP = 15.dp
                 }
-                Column(horizontalAlignment = Alignment.CenterHorizontally,modifier = Modifier.padding(start = 15.dp, top = 10.dp, end = lastDayDP) ) {
-                    CircularProgressbar2(SleptHours[i-1])
-                    Text(
-                        text = item,
-                        color = MaterialTheme.colors.onPrimary,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .padding(start = 15.dp, top = 10.dp, end = lastDayDP)
+                        .clickable { historyPressed(item.date) }
+                )
+                {
+                    CircularProgressbar2(item.hoursSlept)
+                    if (item.date.equals(uiState.selectedNight)) {
+                        Text(
+                            text = item.date.dropLast(5),
+                            color = MaterialTheme.colors.onPrimary,
+                            modifier = Modifier
+                                .padding(top = 8.dp),
+                            textDecoration = TextDecoration.Underline
+                        )
+                    } else {
+                        Text(
+                            text = item.date.dropLast(5),
+                            color = MaterialTheme.colors.onPrimary,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                    }
                 }
             }
 
@@ -200,7 +231,7 @@ fun CircularProgressbar2(
 }
 
 @Composable
-fun Data() {
+fun Data(uiState: HomeUiState, changeSliderPos: (sliderPos: Float) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -229,7 +260,7 @@ fun Data() {
                     modifier = Modifier.offset(x = 0.dp, y = 5.dp)
                 )
                 Text(
-                    text = "8h 12m",
+                    text = uiState.timeAsleep,
                     fontSize = 20.sp,
                     color = MaterialTheme.colors.onPrimary,
                     modifier = Modifier.offset(x = 23.dp, y = 0.dp)
@@ -257,7 +288,7 @@ fun Data() {
                     modifier = Modifier.offset(x = (-2).dp, y = 5.dp)
                 )
                 Text(
-                    text = "01:13-09:32",
+                    text = uiState.fromTil,
                     fontSize = 20.sp,
                     color = MaterialTheme.colors.onPrimary,
                     modifier = Modifier.offset(x = 23.dp, y = 0.dp)
@@ -285,12 +316,13 @@ fun Data() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.height(30.dp)) {
-                var sliderPosition by remember { mutableStateOf(0f) }
+                //var sliderPosition by remember { mutableStateOf(0f) }
                 Slider(
-                    value = sliderPosition,
-                    onValueChange = { sliderPosition = it },
+                    value = uiState.rateSleepSliderPosition,
+                    onValueChange = { changeSliderPos(it) },
                     valueRange = 1f..10f,
                     steps = 8,
+                    enabled = uiState.rateSleepSliderEnabled,
 
                     colors = SliderDefaults.colors(
                         thumbColor = MaterialTheme.colors.onPrimary,
@@ -311,7 +343,7 @@ fun Data() {
 }
 
 @Composable
-fun Caffeine() {
+fun Caffeine(amountDrinks: Int, timeLastDrink: String, addDrink: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -340,7 +372,7 @@ fun Caffeine() {
                     modifier = Modifier.offset(x = 0.dp, y = 5.dp)
                 )
                 Text(
-                    text = "6",
+                    text = amountDrinks.toString(),
                     fontSize = 20.sp,
                     color = MaterialTheme.colors.onPrimary,
                     modifier = Modifier.offset(x = 26.dp, y = 0.dp)
@@ -369,7 +401,7 @@ fun Caffeine() {
                     modifier = Modifier.offset(x = (-2).dp, y = 5.dp)
                 )
                 Text(
-                    text = "1h 58m",
+                    text = timeLastDrink,
                     fontSize = 20.sp,
                     color = MaterialTheme.colors.onPrimary,
                     modifier = Modifier.offset(x = 23.dp, y = 0.dp)
@@ -400,6 +432,7 @@ fun Caffeine() {
                 .size(50.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colors.background)
+                .clickable { addDrink() }
 
         ) {
             Box() {

@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -41,8 +42,7 @@ fun InfoScreen() {
         InfoHeader()
         TipCharacter()
         TipList()
-        Spacer(modifier = Modifier.height(20.dp)
-        )
+        //Spacer(modifier = Modifier.height(20.dp)
     }
 }
 
@@ -83,7 +83,7 @@ fun InfoHeader() {
 fun TipCharacter() {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.padding(bottom = 40.dp)
+        modifier = Modifier.padding(bottom = 20.dp)
     ) {
         Box(modifier = Modifier
             .offset(x = 0.dp, y = 0.dp)
@@ -133,7 +133,7 @@ fun TipList() {
     val tips = arrayListOf<TipObject>(
         TipObject("Tips on how to reduce noise in your bedroom during the night", paragraph, R.drawable.noise_bedroom_stock),
         TipObject("Drink less caffeinated drinks before you go to bed", paragraph, R.drawable.coffee_stock),
-        TipObject("Drink less caffeinated drinks before you go to bed", paragraph, R.drawable.temperature_stock)
+        TipObject("Reduce the temperature of your bedroom to increase the quality of your sleep", paragraph, R.drawable.temperature_stock)
     )
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -157,43 +157,36 @@ fun Tip(title: String, paragraph: String, imageId: Int) {
         modifier = Modifier
             .clip(RoundedCornerShape(9.dp))
             .width(300.dp)
-            .background(MaterialTheme.colors.primary),
+            .background(MaterialTheme.colors.primary)
+            .clickable {  },
         contentAlignment = Alignment.Center
 
     ) {
         Column(modifier = Modifier
             .fillMaxSize()
-            .padding(10.dp)
+            .padding(0.dp)
         ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = title,
-                    fontSize = 14.sp,
-                    modifier = Modifier.weight(1f)
-                )
-                Image(
-                    painter = painterResource(id = imageId),
-                    contentDescription = "Tip Picture",
-                    modifier = Modifier
-                        .width(200.dp)
-                        .weight(1f)
-                )
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = paragraph,
-                fontSize = 10.sp
+            Image(
+                painter = painterResource(id = imageId),
+                contentDescription = "Tip Picture",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp),
+                contentScale = ContentScale.Crop
             )
-        }
-
+            Text(
+                text = title,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(10.dp)
+            )
+            }
     }
-    Spacer(modifier = Modifier.height(20.dp))
+    Spacer(modifier = Modifier.height(30.dp))
 }
 
 
 
 class TriangleEdgeShape(private val offset: Int) : Shape {
-
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
