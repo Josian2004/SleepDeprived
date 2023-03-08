@@ -17,9 +17,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import fhict.sm.sleepdeprived.HomeScreen
 import fhict.sm.sleepdeprived.InfoScreen
-import fhict.sm.sleepdeprived.SleepScreen
+import fhict.sm.sleepdeprived.ScheduleScreen
 import fhict.sm.sleepdeprived.ui.startscreen.StartScreen
 import fhict.sm.sleepdeprived.ui.theme.Blue
+import fhict.sm.sleepdeprived.ui.theme.DarkBlue
 import fhict.sm.sleepdeprived.ui.theme.Gray
 import fhict.sm.sleepdeprived.ui.theme.White
 
