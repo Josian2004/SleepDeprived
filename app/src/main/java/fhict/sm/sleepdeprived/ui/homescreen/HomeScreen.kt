@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,8 +46,12 @@ fun HomeScreen(
     ) {
         val homeUiState by homeViewModel.uiState.collectAsState()
 
+        /*Button(onClick = { homeViewModel.test() }) {
+            Text(text = "Add Test Data")
+        }*/
+        
         HomeHeader()
-        History()
+        History(homeUiState, homeViewModel::historyPressed)
         Data(homeUiState, homeViewModel::changeRateSleepSliderPos)
         Caffeine(homeUiState.amountDrinks, homeUiState.timeLastDrink, homeViewModel::addDrink)
 
@@ -87,8 +92,8 @@ fun HomeHeader() {
 }
 
 @Composable
-fun History() {
-    val SleptHours = arrayOf(4f, 7f, 6f, 7f, 3f, 8f, 4f, 5f, 6f, 7f,)
+fun History(uiState: HomeUiState, historyPressed: (day: String) -> Unit) {
+    //val SleptHours = arrayOf(4f, 7f, 6f, 7f, 3f, 8f, 4f, 5f, 6f, 7f,)
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -103,29 +108,45 @@ fun History() {
             )
 
     ) {
-        Progress(SleptHours)
+        Progress(uiState, historyPressed)
     }
 }
 
 @Composable
-fun Progress(SleptHours: Array<Float>) {
-    val Days = arrayOf("21/2", "22/2", "23/2", "24/2", "25/2", "26/2", "27/2", "28/2", "1/3", "2/3")
+fun Progress(uiState: HomeUiState, historyPressed: (day: String) -> Unit) {
+    //val Days = arrayOf("21/2", "22/2", "23/2", "24/2", "25/2", "26/2", "27/2", "28/2", "1/3", "2/3")
     var lastDayDP = 0.dp
     var i = 0
     Box(){
         Row() {
-            Days.forEach { item ->
+            uiState.historyList.forEach { item ->
                 i++
-                if(i == Days.size){
+                if(i == uiState.historyList.size){
                     lastDayDP = 15.dp
                 }
-                Column(horizontalAlignment = Alignment.CenterHorizontally,modifier = Modifier.padding(start = 15.dp, top = 10.dp, end = lastDayDP) ) {
-                    CircularProgressbar2(SleptHours[i-1])
-                    Text(
-                        text = item,
-                        color = MaterialTheme.colors.onPrimary,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .padding(start = 15.dp, top = 10.dp, end = lastDayDP)
+                        .clickable { historyPressed(item.date) }
+                )
+                {
+                    CircularProgressbar2(item.hoursSlept)
+                    if (item.date.equals(uiState.selectedNight)) {
+                        Text(
+                            text = item.date.dropLast(5),
+                            color = MaterialTheme.colors.onPrimary,
+                            modifier = Modifier
+                                .padding(top = 8.dp),
+                            textDecoration = TextDecoration.Underline
+                        )
+                    } else {
+                        Text(
+                            text = item.date.dropLast(5),
+                            color = MaterialTheme.colors.onPrimary,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                    }
                 }
             }
 

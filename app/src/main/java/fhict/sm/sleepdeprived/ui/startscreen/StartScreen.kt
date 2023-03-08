@@ -8,6 +8,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalCafe
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -16,28 +18,32 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import fhict.sm.sleepdeprived.R
 import fhict.sm.sleepdeprived.ui.theme.aBeeZeeFamily
 
 @Composable
-fun StartScreen() {
+fun StartScreen(
+    startViewModel: StartViewModel = hiltViewModel()
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
             .verticalScroll(enabled = true, state = rememberScrollState())
     ) {
+        val startUiState by startViewModel.uiState.collectAsState()
 
         StartHeader()
-        Character()
-        RateSleepSlider()
-        NightSummary()
+        Character(startUiState)
+        RateSleepSlider(startUiState)
+        NightSummary(startUiState)
         Row() {
             Box(modifier = Modifier.weight(1f)) {
-                AddCaffeine()
+                AddCaffeine(startUiState)
             }
             Box(modifier = Modifier.weight(1f)) {
-                GoalSummary()
+                GoalSummary(startUiState)
             }
         }
 
@@ -78,7 +84,7 @@ fun StartHeader() {
 }
 
 @Composable
-fun Character() {
+fun Character(startUiState: StartUiState) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.padding(bottom = 0.dp)
@@ -93,7 +99,7 @@ fun Character() {
 }
 
 @Composable
-fun RateSleepSlider() {
+fun RateSleepSlider(startUiState: StartUiState) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -132,7 +138,7 @@ fun RateSleepSlider() {
 }
 
 @Composable
-fun NightSummary() {
+fun NightSummary(startUiState: StartUiState) {
         Column(modifier = Modifier
             .fillMaxSize()
             .padding(15.dp)
@@ -141,16 +147,25 @@ fun NightSummary() {
             .background(MaterialTheme.colors.primary),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val title: String
+            val paragraph: String
+            if (startUiState.timeAsleep.equals("No Data")) {
+                title = "The app was unable to track your sleep last night"
+                paragraph = "For some reason was the app unable to track your sleep last night, make sure you have your phone turned on for the whole night."
+            } else {
+                title = "Wow, you slept like a programmer!"
+                paragraph = "Today you slept for ${startUiState.timeAsleep}, that’s really bad, it may have been because you drank 12 coffees before going to bed...\n" +
+                            "\n" +
+                            "Maybe look at some tips on how to improve your sleep."
+            }
             Text(
-                text = "Wow, you slept like a programmer!",
+                text = title,
                 fontSize = 20.sp,
                 modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 10.dp)
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = "Today you slept for 4 hours and 21 minutes, that’s really bad, it may have been because you drank 12 coffees before going to bed...\n" +
-                        "\n" +
-                        "Maybe look at some tips on how to improve your sleep.",
+                text = paragraph,
                 fontSize = 16.sp,
                 modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
             )
@@ -158,7 +173,7 @@ fun NightSummary() {
 }
 
 @Composable
-fun GoalSummary() {
+fun GoalSummary(startUiState: StartUiState) {
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(start = 7.dp, end = 15.dp)
@@ -180,7 +195,7 @@ fun GoalSummary() {
 }
 
 @Composable
-fun AddCaffeine() {
+fun AddCaffeine(startUiState: StartUiState) {
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(start = 15.dp, end = 7.dp)
