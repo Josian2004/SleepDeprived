@@ -1,6 +1,7 @@
 package fhict.sm.sleepdeprived
 
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -30,7 +31,7 @@ fun Navigation(navController: NavHostController) {
             InfoScreen()
         }
         composable("sleep") {
-            SleepScreen()
+            ScheduleScreen()
         }
 
     }
@@ -48,6 +49,7 @@ fun BottomNavigationBar(
     BottomNavigation(
         modifier = Modifier
             .height(72.dp)
+            .border(width = 2.dp, DarkBlue)
             .clip(
                 shape = RoundedCornerShape(
                     topStart = 20.dp,

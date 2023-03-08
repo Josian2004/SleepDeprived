@@ -61,16 +61,7 @@ class MainActivity : ComponentActivity() {
 
 }
 
-@Composable
-fun SleepScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Sleep Schedule screen")
 
-    }
-}
 
 
 //.border(width = 1.dp, Color.Red)

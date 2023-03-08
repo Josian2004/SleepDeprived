@@ -191,7 +191,6 @@ fun Tip(title: String, paragraph: String, imageId: Int) {
 }
 
 
-
 class TriangleEdgeShape(private val offset: Int) : Shape {
 
     override fun createOutline(
