@@ -4,4 +4,5 @@
     <style name="Theme.SleepDeprived" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@color/dark_blue</item>
     </style>
+
 </resources>

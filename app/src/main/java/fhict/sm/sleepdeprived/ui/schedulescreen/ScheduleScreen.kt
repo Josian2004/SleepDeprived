@@ -43,7 +43,6 @@ fun ScheduleScreen() {
     }
 }
 
-
 @Composable
 fun Card() {
     Column(
@@ -79,6 +78,7 @@ fun StartSleep() {
     // Creating a TimePicker dialod
     val mTimePickerDialog = TimePickerDialog(
         mContext,
+        R.style.Theme_SleepDeprived,
         { _, mHour: Int, mMinute: Int ->
             if (mMinute < 10) {
                 mTime.value = "$mHour:0$mMinute"
@@ -108,7 +108,6 @@ fun StartSleep() {
 
 @Composable
 fun EndSleep() {
-
     // Fetching local context
     val mContext = LocalContext.current
 
@@ -123,8 +122,13 @@ fun EndSleep() {
     // Creating a TimePicker dialod
     val mTimePickerDialog = TimePickerDialog(
         mContext,
+        R.style.Theme_SleepDeprived,
         { _, mHour: Int, mMinute: Int ->
-            mTime.value = "$mHour:$mMinute"
+            if (mMinute < 10) {
+                mTime.value = "$mHour:0$mMinute"
+            } else {
+                mTime.value = "$mHour:$mMinute"
+            }
         }, mHour, mMinute, false
     )
 
@@ -132,7 +136,7 @@ fun EndSleep() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (mTime.value != null) {
+        if (mTime.value == "") {
             mTime.value = "00:00"
         }
         // On button click, TimePicker is
