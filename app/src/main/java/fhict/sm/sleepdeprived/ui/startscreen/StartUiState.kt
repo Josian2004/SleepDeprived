@@ -5,7 +5,10 @@ data class StartUiState (
     val amountDrinks: Int = 0,
 
     val rateSleepSliderPosition: Float = 0f,
-    val rateSleepSliderEnabled: Boolean = true
+    val rateSleepSliderEnabled: Boolean = true,
+
+    val nightSummaryTitle: String = "",
+    val nightSummaryParagraph: String = ""
 )
 {
 

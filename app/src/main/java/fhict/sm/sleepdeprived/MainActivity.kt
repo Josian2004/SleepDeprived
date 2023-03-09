@@ -52,10 +52,7 @@ class MainActivity : ComponentActivity() {
         }
 
 
-    override fun onDestroy() {
-        super.onDestroy()
-        sleepRequestManager.unsubscribeFromSleepUpdates()
-    }
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,6 +110,11 @@ class MainActivity : ComponentActivity() {
         sleepRequestManager.requestSleepUpdates(requestPermission = {
             permissionRequester.launch(ACTIVITY_RECOGNITION)
         })
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        sleepRequestManager.unsubscribeFromSleepUpdates()
     }
 
 

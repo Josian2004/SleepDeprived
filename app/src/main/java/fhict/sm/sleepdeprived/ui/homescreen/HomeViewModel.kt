@@ -8,6 +8,7 @@ import fhict.sm.sleepdeprived.data.caffeine.CaffeineRepository
 import fhict.sm.sleepdeprived.data.caffeine.db.CaffeineEntity
 import fhict.sm.sleepdeprived.data.sleep.SleepRepository
 import fhict.sm.sleepdeprived.data.sleep.db.SleepSegmentEntity
+import fhict.sm.sleepdeprived.domain.AppStateService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,7 +24,8 @@ import kotlin.math.floor
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val sleepRepository: SleepRepository,
-    private val caffeineRepository: CaffeineRepository
+    private val caffeineRepository: CaffeineRepository,
+    private val appStateService: AppStateService
     ): ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -32,9 +34,11 @@ class HomeViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val sleepSegments = sleepRepository.getAllSleepSegments()
-            if (sleepSegments[0].date.equals(SimpleDateFormat("dd/MM/yyyy").format(Date(System.currentTimeMillis() - 86400000)))) {
-                //currentSelectedNight = sleepSegments[0]
-                changeDay(sleepSegments[0])
+            if (sleepSegments.isNotEmpty()) {
+                if (sleepSegments[0].date.equals(SimpleDateFormat("dd/MM/yyyy").format(Date(System.currentTimeMillis() - 86400000)))) {
+                    //currentSelectedNight = sleepSegments[0]
+                    changeDay(sleepSegments[0])
+                }
             } else {
                 changeDay(null)
             }
