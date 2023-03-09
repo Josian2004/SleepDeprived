@@ -16,4 +16,7 @@ interface CaffeineDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(caffeineEntity: CaffeineEntity)
+
+    @Query("SELECT * FROM caffeine_table ORDER BY intake_moment DESC LIMIT 1")
+    suspend fun getLastCaffeine(): CaffeineEntity
 }

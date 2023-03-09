@@ -10,6 +10,9 @@ interface SleepSegmentDao {
     @Query("SELECT * FROM sleep_segment_table ORDER BY start_time DESC")
     suspend fun getAll(): List<SleepSegmentEntity>
 
+    @Query("SELECT * FROM sleep_segment_table ORDER BY start_time DESC LIMIT 2")
+    suspend fun getLast2(): List<SleepSegmentEntity>
+
     @Query("SELECT * FROM sleep_segment_table WHERE date = :date")
     suspend fun getByNight(date: String): SleepSegmentEntity?
 

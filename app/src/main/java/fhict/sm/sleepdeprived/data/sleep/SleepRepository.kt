@@ -22,4 +22,8 @@ class SleepRepository @Inject constructor(
     suspend fun getSleepSegmentByNight(nightDate: String): SleepSegmentEntity? {
         return sleepSegmentDao.getByNight(nightDate)
     }
+
+    suspend fun getLast2SleepSegments(): List<SleepSegmentEntity> {
+        return sleepSegmentDao.getLast2()
+    }
 }

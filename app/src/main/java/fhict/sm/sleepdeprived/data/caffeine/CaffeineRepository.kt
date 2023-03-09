@@ -14,4 +14,8 @@ class CaffeineRepository @Inject constructor(
     suspend fun getAllCaffeineBetweenTime(start: Long, end: Long): List<CaffeineEntity> {
         return caffeineDao.getAllByStartAndEnd(start, end)
     }
+
+    suspend fun getLastCaffeine(): CaffeineEntity {
+        return caffeineDao.getLastCaffeine()
+    }
 }

@@ -147,25 +147,14 @@ fun NightSummary(startUiState: StartUiState) {
             .background(MaterialTheme.colors.primary),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val title: String
-            val paragraph: String
-            if (startUiState.timeAsleep.equals("No Data")) {
-                title = "The app was unable to track your sleep last night"
-                paragraph = "For some reason was the app unable to track your sleep last night, make sure you have your phone turned on for the whole night."
-            } else {
-                title = "Wow, you slept like a programmer!"
-                paragraph = "Today you slept for ${startUiState.timeAsleep}, that’s really bad, it may have been because you drank 12 coffees before going to bed...\n" +
-                            "\n" +
-                            "Maybe look at some tips on how to improve your sleep."
-            }
             Text(
-                text = title,
+                text = startUiState.nightSummaryTitle,
                 fontSize = 20.sp,
                 modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 10.dp)
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = paragraph,
+                text = startUiState.nightSummaryParagraph,
                 fontSize = 16.sp,
                 modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
             )
