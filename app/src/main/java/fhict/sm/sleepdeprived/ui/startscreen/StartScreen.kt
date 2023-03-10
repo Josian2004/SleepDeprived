@@ -47,7 +47,8 @@ fun StartScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp)
+        Spacer(
+            modifier = Modifier.height(20.dp)
         )
     }
 }
@@ -107,67 +108,85 @@ fun RateSleepSlider(startUiState: StartUiState) {
             .clip(RoundedCornerShape(9.dp))
             .background(MaterialTheme.colors.primary),
         horizontalAlignment = Alignment.CenterHorizontally
-
     ) {
         Text(
             text = "Good morning, how did you feel like you slept?",
             fontSize = 20.sp,
             color = MaterialTheme.colors.onPrimary,
-            modifier = Modifier.padding(top = 10.dp, bottom = 15.dp, start = 10.dp, end = 10.dp)
+            modifier = Modifier.padding(top = 10.dp, bottom = 0.dp, start = 10.dp, end = 10.dp)
         )
 
-        Box(modifier = Modifier.height(30.dp)) {
-            //var sliderPosition by remember { mutableStateOf(0f) }
-            Slider(
-                value = 0f /*sliderPosition*/,
-                onValueChange = {}/*{ changeSliderPos(it) }*/,
-                valueRange = 1f..10f,
-                steps = 8,
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 10.dp, end = 10.dp, bottom = 0.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                "1",
+                fontSize = 20.sp,
+                color = MaterialTheme.colors.onPrimary,
+                modifier = Modifier.padding(top = 12.dp, bottom = 0.dp, start = 0.dp, end = 10.dp)
+            )
+            Box(modifier = Modifier.weight(1f)) {
+                //var sliderPosition by remember { mutableStateOf(0f) }
+                Slider(
+                    value = 0f /*sliderPosition*/,
+                    onValueChange = {}/*{ changeSliderPos(it) }*/,
+                    valueRange = 1f..10f,
+                    steps = 8,
 
-                colors = SliderDefaults.colors(
-                    thumbColor = MaterialTheme.colors.onPrimary,
-                    activeTickColor = MaterialTheme.colors.background,
-                    inactiveTickColor = MaterialTheme.colors.background,
-                    activeTrackColor = MaterialTheme.colors.onPrimary
-                ),
-                modifier = Modifier.padding(start = 50.dp, end = 50.dp, bottom = 20.dp)
+                    colors = SliderDefaults.colors(
+                        thumbColor = MaterialTheme.colors.onPrimary,
+                        activeTickColor = MaterialTheme.colors.background,
+                        inactiveTickColor = MaterialTheme.colors.background,
+                        activeTrackColor = MaterialTheme.colors.onPrimary
+                    )
+                )
+            }
+            Text(
+                "10",
+                fontSize = 20.sp,
+                color = MaterialTheme.colors.onPrimary,
+                modifier = Modifier.padding(top = 12.dp, bottom = 0.dp, start = 0.dp, end = 10.dp)
             )
         }
-
     }
 }
 
 @Composable
 fun NightSummary(startUiState: StartUiState) {
-        Column(modifier = Modifier
+    Column(
+        modifier = Modifier
             .fillMaxSize()
             .padding(15.dp)
             .clip(RoundedCornerShape(9.dp))
             .width(300.dp)
             .background(MaterialTheme.colors.primary),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = startUiState.nightSummaryTitle,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 10.dp)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = startUiState.nightSummaryParagraph,
-                fontSize = 16.sp,
-                modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
-            )
-        }
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = startUiState.nightSummaryTitle,
+            fontSize = 20.sp,
+            modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 10.dp)
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = startUiState.nightSummaryParagraph,
+            fontSize = 16.sp,
+            modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
+        )
+    }
 }
 
 @Composable
 fun GoalSummary(startUiState: StartUiState) {
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(start = 7.dp, end = 15.dp)
-        .clip(RoundedCornerShape(9.dp))
-        .background(MaterialTheme.colors.primary)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(start = 7.dp, end = 15.dp)
+            .clip(RoundedCornerShape(9.dp))
+            .background(MaterialTheme.colors.primary)
     ) {
         Text(
             text = "Good Job!",
@@ -185,11 +204,12 @@ fun GoalSummary(startUiState: StartUiState) {
 
 @Composable
 fun AddCaffeine(startUiState: StartUiState) {
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(start = 15.dp, end = 7.dp)
-        .clip(RoundedCornerShape(9.dp))
-        .background(MaterialTheme.colors.primary)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(start = 15.dp, end = 7.dp)
+            .clip(RoundedCornerShape(9.dp))
+            .background(MaterialTheme.colors.primary)
     ) {
         Text(
             text = "Amount of drinks:",

@@ -30,6 +30,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import fhict.sm.sleepdeprived.ui.homescreen.HomeUiState
 import fhict.sm.sleepdeprived.ui.homescreen.HomeViewModel
+import fhict.sm.sleepdeprived.ui.theme.DarkBlue
+import fhict.sm.sleepdeprived.ui.theme.Gray
+import fhict.sm.sleepdeprived.ui.theme.White
 import fhict.sm.sleepdeprived.ui.theme.aBeeZeeFamily
 
 
@@ -49,14 +52,15 @@ fun HomeScreen(
         /*Button(onClick = { homeViewModel.test() }) {
             Text(text = "Add Test Data")
         }*/
-        
+
         HomeHeader()
         History(homeUiState, homeViewModel::historyPressed)
         Data(homeUiState, homeViewModel::changeRateSleepSliderPos)
         Caffeine(homeUiState.amountDrinks, homeUiState.timeLastDrink, homeViewModel::addDrink)
 
-        Spacer(modifier = Modifier.height(20.dp)
-)
+        Spacer(
+            modifier = Modifier.height(20.dp)
+        )
     }
 }
 
@@ -117,11 +121,11 @@ fun Progress(uiState: HomeUiState, historyPressed: (day: String) -> Unit) {
     //val Days = arrayOf("21/2", "22/2", "23/2", "24/2", "25/2", "26/2", "27/2", "28/2", "1/3", "2/3")
     var lastDayDP = 0.dp
     var i = 0
-    Box(){
+    Box() {
         Row() {
             uiState.historyList.forEach { item ->
                 i++
-                if(i == uiState.historyList.size){
+                if (i == uiState.historyList.size) {
                     lastDayDP = 15.dp
                 }
                 Column(
@@ -216,7 +220,10 @@ fun CircularProgressbar2(
                 startAngle = -90f,
                 sweepAngle = sweepAngle,
                 useCenter = false,
-                style = Stroke((thickness + extraSizeForegroundIndicator).toPx(), cap = StrokeCap.Butt)
+                style = Stroke(
+                    (thickness + extraSizeForegroundIndicator).toPx(),
+                    cap = StrokeCap.Butt
+                )
             )
         }
 
@@ -225,7 +232,7 @@ fun CircularProgressbar2(
             text = (animateNumber.value).toInt().toString() + "h",
             style = numberStyle,
 
-        )
+            )
     }
 
 }
@@ -275,7 +282,8 @@ fun Data(uiState: HomeUiState, changeSliderPos: (sliderPos: Float) -> Unit) {
             Spacer(
                 Modifier
                     .width(20.dp)
-                    .height(5.dp))
+                    .height(5.dp)
+            )
             Box(
                 modifier = Modifier
                     .width(170.dp)
@@ -312,33 +320,55 @@ fun Data(uiState: HomeUiState, changeSliderPos: (sliderPos: Float) -> Unit) {
         ) {
 
         }
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box(modifier = Modifier.height(30.dp)) {
-                //var sliderPosition by remember { mutableStateOf(0f) }
-                Slider(
-                    value = uiState.rateSleepSliderPosition,
-                    onValueChange = { changeSliderPos(it) },
-                    valueRange = 1f..10f,
-                    steps = 8,
-                    enabled = uiState.rateSleepSliderEnabled,
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                "1",
+                fontSize = 20.sp,
+                color = MaterialTheme.colors.onPrimary,
+                modifier = Modifier
+                    .padding(top = 12.dp, bottom = 0.dp, start = 20.dp, end = 0.dp)
+                    .offset(x = 0.dp)
+            )
 
-                    colors = SliderDefaults.colors(
-                        thumbColor = MaterialTheme.colors.onPrimary,
-                        activeTickColor = MaterialTheme.colors.background,
-                        inactiveTickColor = MaterialTheme.colors.background,
-                        activeTrackColor = MaterialTheme.colors.onPrimary
-                    ),
-                    modifier = Modifier.padding(start = 50.dp, end = 50.dp)
+            Column(
+
+                ) {
+                Box(modifier = Modifier.height(30.dp)) {
+                    //var sliderPosition by remember { mutableStateOf(0f) }
+                    Slider(
+                        value = uiState.rateSleepSliderPosition,
+                        onValueChange = { changeSliderPos(it) },
+                        valueRange = 1f..10f,
+                        steps = 8,
+                        enabled = uiState.rateSleepSliderEnabled,
+
+                        colors = SliderDefaults.colors(
+                            thumbColor = MaterialTheme.colors.onPrimary,
+                            activeTickColor = MaterialTheme.colors.background,
+                            inactiveTickColor = MaterialTheme.colors.background,
+                            activeTrackColor = MaterialTheme.colors.onPrimary
+                        ),
+                        modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+                    )
+                }
+                Text(
+                    text = "How do you rate your night?",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colors.onPrimary
                 )
             }
             Text(
-                text = "How do you rate your night?",
-                fontSize = 16.sp,
-                color = MaterialTheme.colors.onPrimary
+                "10",
+                fontSize = 20.sp,
+                color = MaterialTheme.colors.onPrimary,
+                modifier = Modifier
+                    .padding(top = 12.dp, bottom = 0.dp, start = 0.dp, end = 0.dp)
+                    .offset(x = 0.dp)
             )
+
+
         }
+
     }
 }
 
@@ -387,7 +417,8 @@ fun Caffeine(amountDrinks: Int, timeLastDrink: String, addDrink: () -> Unit) {
             Spacer(
                 Modifier
                     .width(20.dp)
-                    .height(5.dp))
+                    .height(5.dp)
+            )
             Box(
                 modifier = Modifier
                     .width(137.dp)
