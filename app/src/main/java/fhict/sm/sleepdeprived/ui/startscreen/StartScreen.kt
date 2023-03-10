@@ -36,7 +36,7 @@ fun StartScreen(
 
         StartHeader()
         Character(startUiState)
-        RateSleepSlider(startUiState)
+        RateSleepSlider(startUiState, startViewModel::changeRateSleepSliderPos)
         NightSummary(startUiState)
         Row() {
             Box(modifier = Modifier.weight(1f)) {
@@ -99,7 +99,7 @@ fun Character(startUiState: StartUiState) {
 }
 
 @Composable
-fun RateSleepSlider(startUiState: StartUiState) {
+fun RateSleepSlider(startUiState: StartUiState, changeSliderPos: (sliderPos: Float) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -119,10 +119,11 @@ fun RateSleepSlider(startUiState: StartUiState) {
         Box(modifier = Modifier.height(30.dp)) {
             //var sliderPosition by remember { mutableStateOf(0f) }
             Slider(
-                value = 0f /*sliderPosition*/,
-                onValueChange = {}/*{ changeSliderPos(it) }*/,
+                value = startUiState.rateSleepSliderPosition,
+                onValueChange = { changeSliderPos(it) },
                 valueRange = 1f..10f,
                 steps = 8,
+                enabled = startUiState.rateSleepSliderEnabled,
 
                 colors = SliderDefaults.colors(
                     thumbColor = MaterialTheme.colors.onPrimary,
