@@ -31,34 +31,28 @@ class StartViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            /*val sleepSegments = sleepRepository.getAllSleepSegments()
-            if (sleepSegments.isNotEmpty()) {
-                val sleepSegment: SleepSegmentEntity = sleepSegments[0]
-                if (sleepSegment.date.equals(SimpleDateFormat("dd/MM/yyyy").format(Date(System.currentTimeMillis() - 86400000)))) {
-                    val timeAsleep =  String.format("%02d hours and %02d minutes", TimeUnit.MILLISECONDS.toHours(sleepSegment.duration), TimeUnit.MILLISECONDS.toMinutes(sleepSegment.duration) % TimeUnit.HOURS.toMinutes(1))
-
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            timeAsleep = timeAsleep
-                        )
-                    }
-                }
-            }*/
-
             val sleepState: SleepState = appStateService.getSleepState()
             val sleepReasons: List<SleepReason> = appStateService.getSleepReasons()
             val nightSummaryTitle: String = generateNightSummaryTitle(sleepState)
             val nightSummaryParagraph: String = generateNightSummaryParagraph(sleepState, sleepReasons)
 
+            var rateSleepSliderEnabled: Boolean = false
+            var rateSleepSliderPos: Float = 0f
+            if (sleepState != SleepState.NO_DATA) {
+                rateSleepSliderEnabled = true
+                rateSleepSliderPos = sleepRepository.getLast2SleepSegments()[0].rating
+            }
+
             _uiState.update { currentState ->
                 currentState.copy(
                     nightSummaryTitle = nightSummaryTitle,
-                    nightSummaryParagraph = nightSummaryParagraph
+                    nightSummaryParagraph = nightSummaryParagraph,
+                    rateSleepSliderEnabled = rateSleepSliderEnabled,
+                    rateSleepSliderPosition = rateSleepSliderPos
                 )
             }
         }
     }
-
 
     private fun generateNightSummaryTitle(sleepState: SleepState): String {
         when(sleepState) {
@@ -108,36 +102,51 @@ class StartViewModel @Inject constructor(
                 paragraph += "Last night you slept for $timeAsleep, this is a little but too much sleep in a night which could have bad consequences. Look at some tips on how to fix oversleeping."
             }
         }
+        paragraph += "\n"
 
 
         sleepReasons.forEach { sleepReason ->
-            paragraph += "\n" + "\n"
+            paragraph += "\n"
             when(sleepReason) {
                 SleepReason.CAFFEINE -> {
-                    paragraph += " I've noticed that you drank some caffeine before going to bed, caffeine keeps you awake and could lead to having trouble falling asleep."
+                    paragraph += "I've noticed that you drank some caffeine before going to bed, caffeine keeps you awake and could lead to having trouble falling asleep."
                 }
                 SleepReason.NO_CAFFEINE -> {
-                    paragraph += " You didn't drink any caffeine in the hour before going to bed, good job!"
+                    paragraph += "You didn't drink any caffeine in the hour before going to bed, good job!"
                 }
                 SleepReason.SCREEN -> {
-                    paragraph += " You seem to be using your phone screen a lot before going to sleep, the blue light from your phone could keep you awake."
+                    paragraph += "You seem to be using your phone screen a lot before going to sleep, the blue light from your phone could keep you awake."
                 }
                 SleepReason.NO_SCREEN -> {
-                    paragraph += " You don't seem yo be using your phone before going to bed, good job!"
+                    paragraph += "You don't seem yo be using your phone before going to bed, good job!"
                 }
                 SleepReason.SAME_SCHEDULE -> {
-                    paragraph += " It's important to keep to a consistent sleep schedule and you have achieved that."
+                    paragraph += "It's important to keep to a consistent sleep schedule and you have achieved that."
                 }
                 SleepReason.TWO_HOURS_SCHEDULE -> {
-                    paragraph += " It's important to keep to a consistent sleep schedule but your schedule fluctuates a little bit from two nights ago."
+                    paragraph += "It's important to keep to a consistent sleep schedule but your schedule fluctuates a little bit from two nights ago."
                 }
                 SleepReason.THREE_HOURS_SCHEDULE -> {
-                    paragraph += " It's important to keep to a consistent sleep schedule but your schedule fluctuates a lot from two nights ago, try to find a more consistent schedule."
+                    paragraph += "It's important to keep to a consistent sleep schedule but your schedule fluctuates a lot from two nights ago, try to find a more consistent schedule."
                 }
             }
         }
 
         return paragraph
+    }
+
+    fun changeRateSleepSliderPos(sliderPos: Float): Unit {
+        viewModelScope.launch {
+            if (appStateService.getSleepState() != SleepState.NO_DATA) {
+               val night = sleepRepository.getLast2SleepSegments()[0]
+                night.rating = sliderPos
+                night.alreadyRated = true
+                _uiState.update { currentState ->
+                    currentState.copy(rateSleepSliderPosition = sliderPos)
+                }
+                sleepRepository.saveSleepSegment(night)
+            }
+        }
     }
 
 }
