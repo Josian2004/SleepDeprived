@@ -101,6 +101,7 @@ class StartViewModel @Inject constructor(
             SleepState.OVER -> {
                 paragraph += "Last night you slept for $timeAsleep, this is a little but too much sleep in a night which could have bad consequences. Look at some tips on how to fix oversleeping."
             }
+            else -> {}
         }
         paragraph += "\n"
 
@@ -129,6 +130,7 @@ class StartViewModel @Inject constructor(
                 SleepReason.THREE_HOURS_SCHEDULE -> {
                     paragraph += "It's important to keep to a consistent sleep schedule but your schedule fluctuates a lot from two nights ago, try to find a more consistent schedule."
                 }
+                else -> {}
             }
         }
 

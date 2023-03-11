@@ -1,6 +1,8 @@
 package fhict.sm.sleepdeprived.ui.homescreen
 
 import android.util.Log
+import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.records.SleepStageRecord
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -8,7 +10,10 @@ import fhict.sm.sleepdeprived.data.caffeine.CaffeineRepository
 import fhict.sm.sleepdeprived.data.caffeine.db.CaffeineEntity
 import fhict.sm.sleepdeprived.data.sleep.SleepRepository
 import fhict.sm.sleepdeprived.data.sleep.db.SleepSegmentEntity
+import fhict.sm.sleepdeprived.data.sleep.db.SleepStageEntity
+import fhict.sm.sleepdeprived.data.sleep.db.StageType
 import fhict.sm.sleepdeprived.domain.AppStateService
+import fhict.sm.sleepdeprived.domain.HealthConnectService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,14 +30,31 @@ import kotlin.math.floor
 class HomeViewModel @Inject constructor(
     private val sleepRepository: SleepRepository,
     private val caffeineRepository: CaffeineRepository,
-    private val appStateService: AppStateService
+    private val appStateService: AppStateService,
+    private val healthConnectService: HealthConnectService
     ): ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    val permissionLauncher = healthConnectService.requestPermissionsActivityContract()
     private var currentSelectedNight: SleepSegmentEntity? = null
 
     init {
         viewModelScope.launch {
+            if (healthConnectService.hasAllPermissions()) {
+                init()
+            }
+
+        }
+    }
+
+    fun init() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                permissionsGranted = true
+            )
+        }
+        viewModelScope.launch {
+            healthConnectService.getSleepSessionData()
             val sleepSegments = sleepRepository.getAllSleepSegments()
             if (sleepSegments.isNotEmpty()) {
                 if (sleepSegments[0].date.equals(SimpleDateFormat("dd/MM/yyyy").format(Date(System.currentTimeMillis() - 86400000)))) {
@@ -42,65 +64,9 @@ class HomeViewModel @Inject constructor(
             } else {
                 changeDay(null)
             }
-            /*Log.d(
-                "SLEEP DATABASE",
-                "${sleepSegments[0]}"
-            )*/
-
-            Log.d(
-                "SLEEP DATABASE",
-                "$sleepSegments"
-            )
-
-
-            /*if (sleepSegments.isEmpty() or !sleepSegments[0].date.equals(SimpleDateFormat("dd/MM/yyyy").format(Date(System.currentTimeMillis() - 86400000)))) {
-                currentSelectedNight = SimpleDateFormat("dd/MM/yyyy").format(Date(System.currentTimeMillis() - 86400000))
-
-                val caffeineEntities = caffeineRepository.getAllCaffeineBetweenTime(System.currentTimeMillis() - 86400000, System.currentTimeMillis() + 10)
-
-                val timeSinceLastDrink: String = if (!caffeineEntities.isEmpty()) {
-                    val unixTimeSinceLastDrink = System.currentTimeMillis() - caffeineEntities[0].intakeMoment
-                    String.format("%02dh %02dm", TimeUnit.MILLISECONDS.toHours(unixTimeSinceLastDrink), TimeUnit.MILLISECONDS.toMinutes(unixTimeSinceLastDrink) % TimeUnit.HOURS.toMinutes(1))
-                } else {
-                    "Yesterday"
-                }
-
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        timeAsleep = "No Data",
-                        fromTil = "No Data",
-                        rateSleepSliderEnabled = false,
-                        amountDrinks = caffeineEntities.size,
-                        timeLastDrink = timeSinceLastDrink
-                    )
-                }
-            } else {
-                currentSelectedNight = sleepSegments[0].date
-
-                val caffeineEntities = caffeineRepository.getAllCaffeineBetweenTime(sleepSegments[0].endTime, System.currentTimeMillis() + 10)
-
-                val timeSinceLastDrink: String = if (!caffeineEntities.isEmpty()) {
-                    val unixTimeSinceLastDrink = System.currentTimeMillis() - caffeineEntities[0].intakeMoment
-                    String.format("%02dh %02dm", TimeUnit.MILLISECONDS.toHours(unixTimeSinceLastDrink), TimeUnit.MILLISECONDS.toMinutes(unixTimeSinceLastDrink) % TimeUnit.HOURS.toMinutes(1))
-                } else {
-                    "Yesterday"
-                }
-
-                val timeAsleep =  String.format("%02dh %02dm", TimeUnit.MILLISECONDS.toHours(sleepSegments[0].duration), TimeUnit.MILLISECONDS.toMinutes(sleepSegments[0].duration) % TimeUnit.HOURS.toMinutes(1))
-                val fromTil = "${SimpleDateFormat("HH:mm").format(Date(sleepSegments[0].startTime))}-${SimpleDateFormat("HH:mm").format(Date(sleepSegments[0].endTime))}"
-
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        timeAsleep = timeAsleep,
-                        fromTil = fromTil,
-                        rateSleepSliderPosition = sleepSegments[0].rating,
-                        amountDrinks = caffeineEntities.size,
-                        timeLastDrink = timeSinceLastDrink
-                    )
-                }
-            }*/
             populateHistory()
         }
+
     }
 
     private fun populateHistory() {
@@ -136,57 +102,44 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun test() {
-        viewModelScope.launch {
-            sleepRepository.saveSleepSegment(SleepSegmentEntity("07/03/2023", 1678234440000, 1678261200000, 26760000, 0, 0f, false))
-        }
-    }
-
     fun addDrink(): Unit {
         viewModelScope.launch {
             caffeineRepository.saveCaffeine(CaffeineEntity(System.currentTimeMillis()))
 
             val night = currentSelectedNight
+            val caffeineEntities: List<CaffeineEntity>
+            val timeSinceLastDrink: String
+            val amountDrinks: Int
 
             if (night != null) {
+                caffeineEntities = caffeineRepository.getAllCaffeineBetweenTime(night.endTime, System.currentTimeMillis() + 10)
 
-                val caffeineEntities = caffeineRepository.getAllCaffeineBetweenTime(night.endTime, System.currentTimeMillis() + 10)
-
-                val timeSinceLastDrink: String = if (!caffeineEntities.isEmpty()) {
+                timeSinceLastDrink = if (caffeineEntities.isNotEmpty()) {
                     val unixTimeSinceLastDrink = System.currentTimeMillis() - caffeineEntities[0].intakeMoment
                     String.format("%02dh %02dm", TimeUnit.MILLISECONDS.toHours(unixTimeSinceLastDrink), TimeUnit.MILLISECONDS.toMinutes(unixTimeSinceLastDrink) % TimeUnit.HOURS.toMinutes(1))
                 } else {
                     "Yesterday"
                 }
-
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        amountDrinks = caffeineRepository.getAllCaffeineBetweenTime(night.endTime, System.currentTimeMillis() + 10).size,
-                        timeLastDrink = timeSinceLastDrink
-                    )
-                }
+                amountDrinks = caffeineRepository.getAllCaffeineBetweenTime(night.endTime, System.currentTimeMillis() + 10).size
             } else {
+                caffeineEntities = caffeineRepository.getAllCaffeineBetweenTime(System.currentTimeMillis() - 86400000, System.currentTimeMillis() + 10)
 
-                val caffeineEntities = caffeineRepository.getAllCaffeineBetweenTime(System.currentTimeMillis() - 86400000, System.currentTimeMillis() + 10)
-
-                val timeSinceLastDrink: String = if (!caffeineEntities.isEmpty()) {
+                timeSinceLastDrink = if (!caffeineEntities.isEmpty()) {
                     val unixTimeSinceLastDrink = System.currentTimeMillis() - caffeineEntities[0].intakeMoment
                     String.format("%02dh %02dm", TimeUnit.MILLISECONDS.toHours(unixTimeSinceLastDrink), TimeUnit.MILLISECONDS.toMinutes(unixTimeSinceLastDrink) % TimeUnit.HOURS.toMinutes(1))
                 } else {
                     "Yesterday"
                 }
+                amountDrinks = caffeineRepository.getAllCaffeineBetweenTime(System.currentTimeMillis() - 86400000, System.currentTimeMillis() + 10).size
+            }
 
-
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        amountDrinks = caffeineRepository.getAllCaffeineBetweenTime(System.currentTimeMillis() - 86400000, System.currentTimeMillis() + 10).size,
-                        timeLastDrink = timeSinceLastDrink
-                    )
-                }
+            _uiState.update { currentState ->
+                currentState.copy(
+                    amountDrinks = amountDrinks,
+                    timeLastDrink = timeSinceLastDrink
+                )
             }
         }
-
-
     }
 
     fun historyPressed(stringDay: String) {
@@ -198,55 +151,48 @@ class HomeViewModel @Inject constructor(
     private fun changeDay(day: SleepSegmentEntity?)
     {
         currentSelectedNight = day
+        var caffeineEntities: List<CaffeineEntity>
+        var timeSinceLastDrink: String
+        var timeAsleep: String
+        var fromTil: String
+        var sleepStages: List<SleepStageEntity>
+        var sleepStagesDuration: Long
+
         Log.d("SLEEP", currentSelectedNight.toString())
         viewModelScope.launch {
             if (currentSelectedNight == null) {
-                //currentSelectedNight = SimpleDateFormat("dd/MM/yyyy").format(Date(System.currentTimeMillis() - 86400000))
+                caffeineEntities = caffeineRepository.getAllCaffeineBetweenTime(System.currentTimeMillis() - 86400000, System.currentTimeMillis() + 10)
+                timeAsleep = "No Data"
+                fromTil = "No Data"
+                sleepStages = emptyList()
+                sleepStagesDuration = 0
 
-                val caffeineEntities = caffeineRepository.getAllCaffeineBetweenTime(System.currentTimeMillis() - 86400000, System.currentTimeMillis() + 10)
-
-                val timeSinceLastDrink: String = if (caffeineEntities.isNotEmpty()) {
-                    val unixTimeSinceLastDrink = System.currentTimeMillis() - caffeineEntities[0].intakeMoment
-                    String.format("%02dh %02dm", TimeUnit.MILLISECONDS.toHours(unixTimeSinceLastDrink), TimeUnit.MILLISECONDS.toMinutes(unixTimeSinceLastDrink) % TimeUnit.HOURS.toMinutes(1))
-                } else {
-                    "Yesterday"
-                }
-
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        timeAsleep = "No Data",
-                        fromTil = "No Data",
-                        rateSleepSliderEnabled = false,
-                        amountDrinks = caffeineEntities.size,
-                        timeLastDrink = timeSinceLastDrink
-                    )
-                }
             } else {
-                //currentSelectedNight = sleepSegments[0].date
                 Log.d("SLEEP", currentSelectedNight.toString())
-                val caffeineEntities = caffeineRepository.getAllCaffeineBetweenTime(currentSelectedNight!!.endTime, System.currentTimeMillis() + 10)
-
-                val timeSinceLastDrink: String = if (caffeineEntities.isNotEmpty()) {
-                    val unixTimeSinceLastDrink = System.currentTimeMillis() - caffeineEntities[0].intakeMoment
-                    String.format("%02dh %02dm", TimeUnit.MILLISECONDS.toHours(unixTimeSinceLastDrink), TimeUnit.MILLISECONDS.toMinutes(unixTimeSinceLastDrink) % TimeUnit.HOURS.toMinutes(1))
-                } else {
-                    "Yesterday"
-                }
-
-                val timeAsleep =  String.format("%02dh %02dm", TimeUnit.MILLISECONDS.toHours(currentSelectedNight!!.duration), TimeUnit.MILLISECONDS.toMinutes(currentSelectedNight!!.duration) % TimeUnit.HOURS.toMinutes(1))
-                val fromTil = "${SimpleDateFormat("HH:mm").format(Date(currentSelectedNight!!.startTime))}-${SimpleDateFormat("HH:mm").format(Date(currentSelectedNight!!.endTime))}"
-
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        timeAsleep = timeAsleep,
-                        fromTil = fromTil,
-                        rateSleepSliderPosition = currentSelectedNight!!.rating,
-                        amountDrinks = caffeineEntities.size,
-                        timeLastDrink = timeSinceLastDrink,
-                        selectedNight = currentSelectedNight!!.date
-                    )
-                }
-        }
+                caffeineEntities = caffeineRepository.getAllCaffeineBetweenTime(currentSelectedNight!!.endTime, System.currentTimeMillis() + 10)
+                timeAsleep =  String.format("%02dh %02dm", TimeUnit.MILLISECONDS.toHours(currentSelectedNight!!.duration), TimeUnit.MILLISECONDS.toMinutes(currentSelectedNight!!.duration) % TimeUnit.HOURS.toMinutes(1))
+                fromTil = "${SimpleDateFormat("HH:mm").format(Date(currentSelectedNight!!.startTime))}-${SimpleDateFormat("HH:mm").format(Date(currentSelectedNight!!.endTime))}"
+                sleepStages = currentSelectedNight!!.sleepStages
+                sleepStagesDuration = currentSelectedNight!!.duration
+            }
+            timeSinceLastDrink = if (caffeineEntities.isNotEmpty()) {
+                val unixTimeSinceLastDrink = System.currentTimeMillis() - caffeineEntities[0].intakeMoment
+                String.format("%02dh %02dm", TimeUnit.MILLISECONDS.toHours(unixTimeSinceLastDrink), TimeUnit.MILLISECONDS.toMinutes(unixTimeSinceLastDrink) % TimeUnit.HOURS.toMinutes(1))
+            } else {
+                "Yesterday"
+            }
+            _uiState.update { currentState ->
+                currentState.copy(
+                    timeAsleep = timeAsleep,
+                    fromTil = fromTil,
+                    rateSleepSliderPosition = currentSelectedNight!!.rating,
+                    amountDrinks = caffeineEntities.size,
+                    timeLastDrink = timeSinceLastDrink,
+                    selectedNight = currentSelectedNight!!.date,
+                    sleepStages = sleepStages,
+                    sleepStagesDuration = sleepStagesDuration
+                )
+            }
 
         }
         }
