@@ -51,7 +51,7 @@ fun InfoScreen(
 
         if (!infoUiState.showPopUp) {
             InfoHeader()
-            TipCharacter()
+            TipCharacter(infoUiState)
             TipList(infoUiState, infoViewModel::openTipDetailPopup, infoViewModel::openTooMuchCaffeinePopup)
         } else {
             TipDetailScreen(title = infoUiState.selectedTip?.tipTitle, paragraphs = infoUiState.selectedTip?.getTipParagraphs(), image = infoUiState.selectedTip?.tipImage, infoViewModel::closeTipDetailPopup)
@@ -94,7 +94,7 @@ fun InfoHeader() {
 }
 
 @Composable
-fun TipCharacter() {
+fun TipCharacter(infoUiState: InfoUiState) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.padding(bottom = 20.dp)
@@ -114,7 +114,7 @@ fun TipCharacter() {
             .width(200.dp)
         ) {
             Text(
-                text = "I’ve noticed that you wake up a lot during the night, this might be because you have a noisy bedroom.",
+                text = infoUiState.characterText,
                 fontSize = 17.sp,
                 fontStyle = FontStyle.Italic,
                 modifier = Modifier.padding(10.dp)
@@ -152,15 +152,17 @@ fun TipList(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        Text(
-            text = "Recommended Tips for You",
-            modifier = Modifier.padding(top = 20.dp)
-        )
-        Divider(
-            color = MaterialTheme.colors.onPrimary,
-            thickness = 1.dp,
-            modifier = Modifier.padding(top = 0.dp, bottom = 20.dp, start = 20.dp, end = 20.dp)
-        )
+        if (infoUiState.tooMuchCaffeine or infoUiState.recommendedTips.isNotEmpty()) {
+            Text(
+                text = "Recommended Tips for You",
+                modifier = Modifier.padding(top = 20.dp)
+            )
+            Divider(
+                color = MaterialTheme.colors.onPrimary,
+                thickness = 1.dp,
+                modifier = Modifier.padding(top = 0.dp, bottom = 20.dp, start = 20.dp, end = 20.dp)
+            )
+        }
 
 
         if (infoUiState.tooMuchCaffeine) {

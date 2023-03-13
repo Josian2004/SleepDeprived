@@ -6,6 +6,7 @@ import fhict.sm.sleepdeprived.data.sleep.db.SleepSegmentEntity
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.collections.ArrayList
 import kotlin.math.abs
 
