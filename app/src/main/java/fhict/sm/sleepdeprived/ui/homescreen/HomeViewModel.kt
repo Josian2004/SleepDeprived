@@ -158,7 +158,6 @@ class HomeViewModel @Inject constructor(
         var sleepStages: List<SleepStageEntity>
         var sleepStagesDuration: Long
 
-        Log.d("SLEEP", currentSelectedNight.toString())
         viewModelScope.launch {
             if (currentSelectedNight == null) {
                 caffeineEntities = caffeineRepository.getAllCaffeineBetweenTime(System.currentTimeMillis() - 86400000, System.currentTimeMillis() + 10)
@@ -168,7 +167,6 @@ class HomeViewModel @Inject constructor(
                 sleepStagesDuration = 0
 
             } else {
-                Log.d("SLEEP", currentSelectedNight.toString())
                 caffeineEntities = caffeineRepository.getAllCaffeineBetweenTime(currentSelectedNight!!.endTime, System.currentTimeMillis() + 10)
                 timeAsleep =  String.format("%02dh %02dm", TimeUnit.MILLISECONDS.toHours(currentSelectedNight!!.duration), TimeUnit.MILLISECONDS.toMinutes(currentSelectedNight!!.duration) % TimeUnit.HOURS.toMinutes(1))
                 fromTil = "${SimpleDateFormat("HH:mm").format(Date(currentSelectedNight!!.startTime))}-${SimpleDateFormat("HH:mm").format(Date(currentSelectedNight!!.endTime))}"

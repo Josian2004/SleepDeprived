@@ -41,12 +41,27 @@ class InfoViewModel @Inject constructor(
                     otherTips.add(tip)
                 }
             }
+            val characterText: String
+            if (sleepReasons.isNotEmpty()) {
+                when (sleepReasons[0]) {
+                    SleepReason.CAFFEINE -> characterText = "I've noticed that you drank some caffeine right before going to bed, this might impact the quality of your sleep"
+                    SleepReason.TWO_HOURS_SCHEDULE -> characterText = "Last night you went more than 1 hour later to bed than you did the day before."
+                    SleepReason.THREE_HOURS_SCHEDULE -> characterText = "Last night you went more than 2 hours later to bed than you did the day before."
+
+                    else -> {
+                        characterText = "I didn't see any indication your actions could have impacted your sleep, good job!"
+                    }
+                }
+            } else {
+                characterText = "I didn't see any indication your actions could have impacted your sleep, good job!"
+            }
 
             _uiState.update { currentState ->
                 currentState.copy(
                     recommendedTips = recommendedTips,
                     otherTips = otherTips,
-                    tooMuchCaffeine = tooMuchCaffeine
+                    tooMuchCaffeine = tooMuchCaffeine,
+                    characterText = characterText
                 )
             }
         }

@@ -51,7 +51,6 @@ class HealthConnectService @Inject constructor (
 
 
     suspend fun getSleepSessionData() {
-        Log.d("HEALTH", "Getting sleep data")
         val lastDay = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS)
             .withHour(23)
 
@@ -100,15 +99,25 @@ class HealthConnectService @Inject constructor (
                     ))
                 }
             }
-            Log.d("HEALTH", stagesResponse.records.toString() )
+            val date = SimpleDateFormat("dd/MM/yyyy").format(Date(session.endTime.toEpochMilli() - 86400000))
+            val oldSleepSegment = sleepRepository.getSleepSegmentByNight(date)
+            val rating: Float
+            val alreadyRated: Boolean
+            if (oldSleepSegment != null) {
+                rating = oldSleepSegment.rating
+                alreadyRated = oldSleepSegment.alreadyRated
+            } else {
+                rating = 0f
+                alreadyRated = false
+            }
             val sleepSegmentEntity = SleepSegmentEntity(
                     startTime = session.startTime.toEpochMilli(),
                     endTime = session.endTime.toEpochMilli(),
                     duration = session.endTime.toEpochMilli() - session.startTime.toEpochMilli(),
-                    date = SimpleDateFormat("dd/MM/yyyy").format(Date(session.endTime.toEpochMilli() - 86400000)),
+                    date = date,
                     status = 0,
-                    rating = 0f,
-                    alreadyRated = false
+                    rating = rating,
+                    alreadyRated = alreadyRated
             )
             sleepSegmentEntity.sleepStages = sleepStages
             sessions.add(sleepSegmentEntity)
