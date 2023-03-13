@@ -6,6 +6,7 @@ import fhict.sm.sleepdeprived.data.sleep.db.SleepSegmentEntity
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.collections.ArrayList
 import kotlin.math.abs
 
@@ -15,7 +16,7 @@ enum class SleepState {
 
 
 enum class SleepReason {
-    SCREEN, CAFFEINE, TWO_HOURS_SCHEDULE, THREE_HOURS_SCHEDULE, NO_SCREEN, NO_CAFFEINE, SAME_SCHEDULE, NO_DATA
+    SCREEN, CAFFEINE, EXTRA_CAFFEINE, TWO_HOURS_SCHEDULE, THREE_HOURS_SCHEDULE, NOISE, TEMPERATURE, NO_SCREEN, NO_CAFFEINE, SAME_SCHEDULE, NO_DATA
 }
 
 class AppStateService @Inject constructor(
@@ -64,6 +65,10 @@ class AppStateService @Inject constructor(
         } else {
             reasons.add(SleepReason.NO_CAFFEINE)
         }
+        if (caffeineRepository.getAllCaffeineBetweenTime(night1.endTime, System.currentTimeMillis()).size >= 35) {
+            reasons.add(SleepReason.EXTRA_CAFFEINE)
+        }
+
 
         if (last2SleepSegments.size == 2) {
             val night2 = last2SleepSegments[1]

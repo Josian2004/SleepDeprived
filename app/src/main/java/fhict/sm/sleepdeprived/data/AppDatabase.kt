@@ -9,6 +9,8 @@ import fhict.sm.sleepdeprived.data.caffeine.db.CaffeineDao
 import fhict.sm.sleepdeprived.data.caffeine.db.CaffeineEntity
 import fhict.sm.sleepdeprived.data.sleep.db.SleepSegmentDao
 import fhict.sm.sleepdeprived.data.sleep.db.SleepSegmentEntity
+import fhict.sm.sleepdeprived.data.sleep.db.SleepSegmentWithStages
+import fhict.sm.sleepdeprived.data.sleep.db.SleepStageEntity
 
 
 /*@Database(
@@ -19,11 +21,12 @@ abstract class AppDatabase : RoomDatabase() {
 }*/
 
 @Database(
-    entities = [SleepSegmentEntity::class, CaffeineEntity::class],
-    version = 2,
+    entities = [SleepSegmentEntity::class, SleepStageEntity::class, CaffeineEntity::class],
+    version = 3,
     exportSchema = true,
     autoMigrations = [
-        AutoMigration (from = 1, to = 2)
+        AutoMigration (from = 1, to = 2),
+        AutoMigration (from = 2, to = 3)
     ]
 )
 abstract class AppDatabase : RoomDatabase() {

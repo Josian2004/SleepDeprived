@@ -18,6 +18,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import fhict.sm.sleepdeprived.HomeScreen
 import fhict.sm.sleepdeprived.InfoScreen
 import fhict.sm.sleepdeprived.ScheduleScreen
+import fhict.sm.sleepdeprived.ui.infoscreen.TipDetailScreen
 import fhict.sm.sleepdeprived.ui.startscreen.StartScreen
 import fhict.sm.sleepdeprived.ui.theme.*
 
@@ -37,6 +38,7 @@ fun Navigation(navController: NavHostController) {
         composable("sleep") {
             ScheduleScreen()
         }
+
 
     }
 }

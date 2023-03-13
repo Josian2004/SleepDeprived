@@ -4,9 +4,12 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,25 +26,36 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import fhict.sm.sleepdeprived.ui.infoscreen.InfoUiState
+import fhict.sm.sleepdeprived.ui.infoscreen.InfoViewModel
+import fhict.sm.sleepdeprived.ui.infoscreen.TipDetailScreen
+import fhict.sm.sleepdeprived.ui.infoscreen.TipModel
 import fhict.sm.sleepdeprived.ui.theme.aBeeZeeFamily
 
 
-class TipObject(val title: String, val paragraph: String, val imageId: Int) {
-}
 
 
 
 @Composable
-fun InfoScreen() {
+fun InfoScreen(
+    infoViewModel: InfoViewModel = hiltViewModel()
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
-            .verticalScroll(enabled = true, state = rememberScrollState())
+            .verticalScroll(enabled = true, state = ScrollState(0))
     ) {
-        InfoHeader()
-        TipCharacter()
-        TipList()
+        val infoUiState by infoViewModel.uiState.collectAsState()
+
+        if (!infoUiState.showPopUp) {
+            InfoHeader()
+            TipCharacter(infoUiState)
+            TipList(infoUiState, infoViewModel::openTipDetailPopup, infoViewModel::openTooMuchCaffeinePopup)
+        } else {
+            TipDetailScreen(title = infoUiState.selectedTip?.tipTitle, paragraphs = infoUiState.selectedTip?.getTipParagraphs(), image = infoUiState.selectedTip?.tipImage, infoViewModel::closeTipDetailPopup)
+        }
         //Spacer(modifier = Modifier.height(20.dp)
     }
 }
@@ -80,7 +94,7 @@ fun InfoHeader() {
 }
 
 @Composable
-fun TipCharacter() {
+fun TipCharacter(infoUiState: InfoUiState) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.padding(bottom = 20.dp)
@@ -100,7 +114,7 @@ fun TipCharacter() {
             .width(200.dp)
         ) {
             Text(
-                text = "I’ve noticed that you wake up a lot during the night, this might be because you have a noisy bedroom.",
+                text = infoUiState.characterText,
                 fontSize = 17.sp,
                 fontStyle = FontStyle.Italic,
                 modifier = Modifier.padding(10.dp)
@@ -128,37 +142,92 @@ fun TipCharacter() {
 }
 
 @Composable
-fun TipList() {
-    val paragraph = "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus. Nullam quis imperdiet augue. Vestibulum auctor ornare leo, non suscipit magna interdum eu. Curabitur pellentesque nibh nibh, at maximus ante fermentum sit amet. Pellentesque commodo lacus at sodales sodales."
-    val tips = arrayListOf<TipObject>(
-        TipObject("Tips on how to reduce noise in your bedroom during the night", paragraph, R.drawable.noise_bedroom_stock),
-        TipObject("Drink less caffeinated drinks before you go to bed", paragraph, R.drawable.coffee_stock),
-        TipObject("Reduce the temperature of your bedroom to increase the quality of your sleep", paragraph, R.drawable.temperature_stock)
-    )
+fun TipList(
+    infoUiState: InfoUiState,
+    openPopup: (selectedTip: TipModel) -> Unit,
+    openTooMuchCaffeinePopup: () -> Unit
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        tips.forEach {
+        if (infoUiState.tooMuchCaffeine or infoUiState.recommendedTips.isNotEmpty()) {
+            Text(
+                text = "Recommended Tips for You",
+                modifier = Modifier.padding(top = 20.dp)
+            )
+            Divider(
+                color = MaterialTheme.colors.onPrimary,
+                thickness = 1.dp,
+                modifier = Modifier.padding(top = 0.dp, bottom = 20.dp, start = 20.dp, end = 20.dp)
+            )
+        }
+
+
+        if (infoUiState.tooMuchCaffeine) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(9.dp))
+                    .width(300.dp)
+                    .background(MaterialTheme.colors.primary)
+                    .clickable { openTooMuchCaffeinePopup() },
+                contentAlignment = Alignment.Center
+
+            ) {
+                Column(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(0.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.caffeine_warning_stock),
+                        contentDescription = "Tip Picture",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp),
+                        contentScale = ContentScale.Crop
+                    )
+                    Text(
+                        text = "Warning! You drank far too much caffeine!",
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+
+
+
+        infoUiState.recommendedTips.forEach {
                 tipObject ->
-                Tip(
-                    title = tipObject.title,
-                    paragraph = tipObject.paragraph,
-                    imageId = tipObject.imageId
-                )
+            Tip(tip = tipObject, openPopup)
+        }
+
+        Text(
+            text = "Extra General Tips",
+            modifier = Modifier.padding(top = 20.dp)
+        )
+        Divider(
+            color = MaterialTheme.colors.onPrimary,
+            thickness = 1.dp,
+            modifier = Modifier.padding(top = 0.dp, bottom = 20.dp, start = 20.dp, end = 20.dp)
+        )
+        infoUiState.otherTips.forEach {
+                tipObject ->
+            Tip(tip = tipObject, openPopup)
         }
     }
 }
 
 @Composable
-fun Tip(title: String, paragraph: String, imageId: Int) {
+fun Tip(tip: TipModel, openPopup:(selectedTip: TipModel) -> Unit) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(9.dp))
             .width(300.dp)
             .background(MaterialTheme.colors.primary)
-            .clickable {  },
+            .clickable { openPopup(tip) },
         contentAlignment = Alignment.Center
 
     ) {
@@ -167,7 +236,7 @@ fun Tip(title: String, paragraph: String, imageId: Int) {
             .padding(0.dp)
         ) {
             Image(
-                painter = painterResource(id = imageId),
+                painter = painterResource(id = tip.tipImage),
                 contentDescription = "Tip Picture",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -175,13 +244,13 @@ fun Tip(title: String, paragraph: String, imageId: Int) {
                 contentScale = ContentScale.Crop
             )
             Text(
-                text = title,
+                text = tip.tipTitle,
                 fontSize = 16.sp,
                 modifier = Modifier.padding(10.dp)
             )
             }
     }
-    Spacer(modifier = Modifier.height(30.dp))
+    Spacer(modifier = Modifier.height(20.dp))
 }
 
 

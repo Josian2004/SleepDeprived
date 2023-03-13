@@ -2,7 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Check whether Health Connect is installed or not -->
+    <queries>
+        <package android:name="com.google.android.apps.healthdata" />
+    </queries>
+
+
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.health.READ_SLEEP"/>
 
     <application
         android:name=".AppApplication"
@@ -22,6 +29,8 @@
             android:permission="android.permission.ACTIVITY_RECOGNITION"
         />
 
+
+
         <receiver
             android:name=".BootReceiver"
             android:enabled="true"
@@ -35,6 +44,17 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name=".PrivacyPolicyActivity"
+            android:exported="true"
+            android:enabled="true">
+            <!-- Handle intent -->
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+        </activity>
+
 
 
         <activity

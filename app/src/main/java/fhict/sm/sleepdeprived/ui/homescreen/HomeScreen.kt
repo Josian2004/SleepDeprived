@@ -1,5 +1,6 @@
 package fhict.sm.sleepdeprived
 
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -27,7 +29,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.records.SleepStageRecord
 import androidx.hilt.navigation.compose.hiltViewModel
+import fhict.sm.sleepdeprived.data.sleep.db.StageType
 import fhict.sm.sleepdeprived.ui.homescreen.HomeUiState
 import fhict.sm.sleepdeprived.ui.homescreen.HomeViewModel
 import fhict.sm.sleepdeprived.ui.theme.DarkBlue
@@ -41,6 +47,18 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
 
+    val permissionsLauncher =
+        rememberLauncherForActivityResult(homeViewModel.permissionLauncher) {
+            homeViewModel.init()
+        }
+
+    val permissions =
+        setOf(
+            HealthPermission.getReadPermission(SleepSessionRecord::class),
+            HealthPermission.getReadPermission(SleepStageRecord::class)
+        )
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -53,14 +71,20 @@ fun HomeScreen(
             Text(text = "Add Test Data")
         }*/
 
-        HomeHeader()
-        History(homeUiState, homeViewModel::historyPressed)
-        Data(homeUiState, homeViewModel::changeRateSleepSliderPos)
-        Caffeine(homeUiState.amountDrinks, homeUiState.timeLastDrink, homeViewModel::addDrink)
+        if (homeUiState.permissionsGranted) {
+            HomeHeader()
+            History(homeUiState, homeViewModel::historyPressed)
+            Data(homeUiState, homeViewModel::changeRateSleepSliderPos)
+            Caffeine(homeUiState.amountDrinks, homeUiState.timeLastDrink, homeViewModel::addDrink)
 
-        Spacer(
-            modifier = Modifier.height(20.dp)
-        )
+            Spacer(modifier = Modifier.height(20.dp))
+        } else {
+            Button(
+                onClick = { permissionsLauncher.launch(permissions) }
+            ) {
+                Text(text = "Request Permissions")
+            }
+        }
     }
 }
 
@@ -315,10 +339,11 @@ fun Data(uiState: HomeUiState, changeSliderPos: (sliderPos: Float) -> Unit) {
                 .padding(top = 0.dp)
                 .clip(RoundedCornerShape(9.dp))
                 .background(MaterialTheme.colors.background)
-                .height(200.dp)
+                .height(200.dp),
+
 
         ) {
-
+            SleepStagesGraph(homeUiState = uiState)
         }
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(
@@ -369,6 +394,89 @@ fun Data(uiState: HomeUiState, changeSliderPos: (sliderPos: Float) -> Unit) {
 
         }
 
+    }
+}
+
+@Composable
+fun SleepStagesGraph(homeUiState: HomeUiState) {
+    Box(modifier = Modifier.offset(x = 0.dp, y = 17.dp), contentAlignment = Alignment.Center) {
+
+        Row(modifier = Modifier
+            .fillMaxWidth(0.9f)
+            .height(200.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            homeUiState.sleepStages.forEach { stage ->
+                val stageDuration = stage.endTime - stage.startTime
+                val weight:Float = (stageDuration.toFloat() / homeUiState.sleepStagesDuration.toFloat())
+                val offsetX: Int
+                val offsetY: Int
+                val color: Color
+                when(stage.type) {
+                    StageType.UNKNOWN -> {
+                        color = Color.Gray
+                        offsetX = 0
+                        offsetY = 0
+                    }
+                    StageType.AWAKE -> {
+                        color = Color.Red
+                        offsetX = 0
+                        offsetY = -80
+                    }
+                    StageType.SLEEPING -> {
+                        color = Color.DarkGray
+                        offsetX = 0
+                        offsetY = 0
+                    }
+                    StageType.OUT_OF_BED -> {
+                        color = Color.Yellow
+                        offsetX = 0
+                        offsetY = 0
+                    }
+                    StageType.REM -> {
+                        color = Color.Cyan
+                        offsetX = 0
+                        offsetY = -40
+                    }
+                    StageType.DEEP -> {
+                        color = Color.Magenta
+                        offsetX = 0
+                        offsetY = 40
+                    }
+                    StageType.LIGHT -> {
+                        color = Color.Blue
+                        offsetX = 0
+                        offsetY = 0
+                    }
+                }
+
+                Box(modifier = Modifier
+                    .offset(x = (offsetX).dp, y = (offsetY).dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .height(40.dp)
+                    .fillMaxWidth()
+                    .weight(weight)
+                    .background(color)
+
+                )
+            }
+        }
+
+        Divider(
+            color = MaterialTheme.colors.onPrimary,
+            thickness = 1.dp,
+            modifier = Modifier.offset(x = 0.dp, y = (-60).dp)
+        )
+        Divider(
+            color = MaterialTheme.colors.onPrimary,
+            thickness = 1.dp,
+            modifier = Modifier.offset(x = 0.dp, y = (-20).dp)
+        )
+        Divider(
+            color = MaterialTheme.colors.onPrimary,
+            thickness = 1.dp,
+            modifier = Modifier.offset(x = 0.dp, y = 20.dp)
+        )
     }
 }
 

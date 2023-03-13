@@ -5,6 +5,8 @@ import dagger.hilt.InstallIn
 import fhict.sm.sleepdeprived.MainActivity
 import fhict.sm.sleepdeprived.data.sleep.db.SleepSegmentDao
 import fhict.sm.sleepdeprived.data.sleep.db.SleepSegmentEntity
+import fhict.sm.sleepdeprived.data.sleep.db.SleepSegmentWithStages
+import fhict.sm.sleepdeprived.data.sleep.db.SleepStageEntity
 import javax.inject.Inject
 
 class SleepRepository @Inject constructor(
@@ -12,18 +14,47 @@ class SleepRepository @Inject constructor(
 )
 {
     suspend fun saveSleepSegment(sleepSegmentEntity: SleepSegmentEntity) {
+        sleepSegmentDao.deleteAllStagesByDate(sleepSegmentEntity.date)
         sleepSegmentDao.insert(sleepSegmentEntity)
+        sleepSegmentDao.insertAllStages(sleepSegmentEntity.sleepStages)
+    }
+
+    suspend fun saveAllSleepSegments(sleepSegmentEntities: MutableList<SleepSegmentEntity>) {
+        sleepSegmentDao.insertAll(sleepSegmentEntities)
+        sleepSegmentEntities.forEach { sleepSegmentEntity ->
+            sleepSegmentDao.deleteAllStagesByDate(sleepSegmentEntity.date)
+            sleepSegmentDao.insertAllStages(sleepSegmentEntity.sleepStages)
+        }
     }
 
     suspend fun getAllSleepSegments(): List<SleepSegmentEntity> {
-        return sleepSegmentDao.getAll()
+        val sleepSegmentsWithStages: List<SleepSegmentWithStages> = sleepSegmentDao.getAll()
+        val sleepSegments: ArrayList<SleepSegmentEntity> = ArrayList()
+        sleepSegmentsWithStages.forEach { sleepSegmentWithStages ->
+            val sleepSegmentEntity = sleepSegmentWithStages.sleepSegmentEntity
+            sleepSegmentEntity.sleepStages = sleepSegmentWithStages.stages as ArrayList<SleepStageEntity>
+            sleepSegments.add(sleepSegmentEntity)
+        }
+
+        return sleepSegments
     }
 
     suspend fun getSleepSegmentByNight(nightDate: String): SleepSegmentEntity? {
-        return sleepSegmentDao.getByNight(nightDate)
+        val sleepSegmentWithStages = sleepSegmentDao.getByNight(nightDate)
+        val sleepSegment = sleepSegmentWithStages?.sleepSegmentEntity
+        sleepSegment?.sleepStages = sleepSegmentWithStages?.stages as ArrayList<SleepStageEntity>
+        return sleepSegment
     }
 
     suspend fun getLast2SleepSegments(): List<SleepSegmentEntity> {
-        return sleepSegmentDao.getLast2()
+        val sleepSegmentsWithStages: List<SleepSegmentWithStages> = sleepSegmentDao.getLast2()
+        val sleepSegments: ArrayList<SleepSegmentEntity> = ArrayList()
+        sleepSegmentsWithStages.forEach { sleepSegmentWithStages ->
+            val sleepSegmentEntity = sleepSegmentWithStages.sleepSegmentEntity
+            sleepSegmentEntity.sleepStages = sleepSegmentWithStages.stages as ArrayList<SleepStageEntity>
+            sleepSegments.add(sleepSegmentEntity)
+        }
+
+        return sleepSegments
     }
 }
