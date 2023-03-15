@@ -20,10 +20,7 @@ import fhict.sm.sleepdeprived.InfoScreen
 import fhict.sm.sleepdeprived.ScheduleScreen
 import fhict.sm.sleepdeprived.ui.infoscreen.TipDetailScreen
 import fhict.sm.sleepdeprived.ui.startscreen.StartScreen
-import fhict.sm.sleepdeprived.ui.theme.Blue
-import fhict.sm.sleepdeprived.ui.theme.DarkBlue
-import fhict.sm.sleepdeprived.ui.theme.Gray
-import fhict.sm.sleepdeprived.ui.theme.White
+import fhict.sm.sleepdeprived.ui.theme.*
 
 
 @Composable
@@ -70,29 +67,29 @@ fun BottomNavigationBar(
         backgroundColor = Blue,
         elevation = 5.dp,
 
-        ){
-        items.forEach{ item ->
+        ) {
+        items.forEach { item ->
             val selected = item.route == backStackEntry.value?.destination?.route
             BottomNavigationItem(
                 selected = selected,
-                onClick = { onItemclick(item)},
+                onClick = { onItemclick(item) },
                 selectedContentColor = White,
                 unselectedContentColor = Gray,
                 icon = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        if (item.badgeCount > 0){
-                            BadgedBox( badge = {
+                        if (item.badgeCount > 0) {
+                            BadgedBox(badge = {
                                 Badge {
                                     Text(item.badgeCount.toString())
                                 }
-                            }){ Icon(
-                                modifier = Modifier.size(32.dp),
-                                imageVector = item.icon,
-                                contentDescription = item.name
-                            )
+                            }) {
+                                Icon(
+                                    modifier = Modifier.size(32.dp),
+                                    imageVector = item.icon,
+                                    contentDescription = item.name
+                                )
                             }
-                        }
-                        else {
+                        } else {
                             Icon(
                                 modifier = Modifier.size(32.dp),
                                 imageVector = item.icon,

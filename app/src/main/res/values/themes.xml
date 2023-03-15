@@ -5,4 +5,16 @@
         <item name="android:statusBarColor">@color/dark_blue</item>
     </style>
 
+    <style name="MyTimePickerStyle" parent="Theme.MaterialComponents.Light.Dialog">
+        <item name="colorAccent">@color/dark_blue</item>
+        <item name="android:background">@color/blue</item>
+        <item name="android:textColor">@color/sd_white</item>
+        <item name="android:editTextColor">@color/sd_white</item>
+        <item name="android:timePickerStyle">@style/TypeOfSelect</item>
+
+    </style>
+
+    <style name="TypeOfSelect" parent="@android:style/Widget.Material.Light.TimePicker">
+        <item name="android:timePickerMode">spinner</item>
+    </style>
 </resources>

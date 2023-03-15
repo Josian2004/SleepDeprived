@@ -38,10 +38,6 @@ class MainActivity : ComponentActivity() {
             }
         }*/
 
-
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,7 +46,6 @@ class MainActivity : ComponentActivity() {
                 /*var permissionGranted by remember {
                     mutableStateOf(isPermissionGranted())
                 }*/
-
 
                 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                 val navController = rememberNavController()
