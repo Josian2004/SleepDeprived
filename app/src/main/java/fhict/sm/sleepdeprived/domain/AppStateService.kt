@@ -36,10 +36,10 @@ class AppStateService @Inject constructor(
 
         val dur1 = night1.duration
         when  {
-            dur1 < 14400000.toLong() -> return SleepState.CRITICAL
+            dur1 <= 14400000.toLong() -> return SleepState.CRITICAL
             (dur1 > 14400000.toLong()) and (dur1 < 25200000.toLong()) -> return SleepState.BELOW_REC
-            (dur1 > 25200000.toLong()) and (dur1 < 28800000.toLong()) -> return SleepState.LESS_THEN_GOAL
-            (dur1 > 28800000.toLong()) and (dur1 < 32400000.toLong()) -> return SleepState.GOOD
+            (dur1 >= 25200000.toLong()) and (dur1 < 28800000.toLong()) -> return SleepState.LESS_THEN_GOAL
+            (dur1 >= 28800000.toLong()) and (dur1 <= 32400000.toLong()) -> return SleepState.GOOD
             dur1 > 32400000.toLong() -> return SleepState.OVER
         }
         return SleepState.NO_DATA

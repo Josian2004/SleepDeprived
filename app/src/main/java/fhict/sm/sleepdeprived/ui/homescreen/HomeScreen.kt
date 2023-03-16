@@ -269,7 +269,7 @@ fun Data(uiState: HomeUiState, changeSliderPos: (sliderPos: Float) -> Unit) {
             .padding(start = 15.dp, end = 15.dp, top = 15.dp)
             .clip(RoundedCornerShape(9.dp))
             .background(MaterialTheme.colors.primary)
-            .height(300.dp),
+            .height(320.dp),
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
@@ -345,56 +345,45 @@ fun Data(uiState: HomeUiState, changeSliderPos: (sliderPos: Float) -> Unit) {
         ) {
             SleepStagesGraph(homeUiState = uiState)
         }
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 10.dp, end = 10.dp, bottom = 0.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             Text(
                 "1",
                 fontSize = 20.sp,
                 color = MaterialTheme.colors.onPrimary,
-                modifier = Modifier
-                    .padding(top = 12.dp, bottom = 0.dp, start = 20.dp, end = 0.dp)
-                    .offset(x = 0.dp)
+                modifier = Modifier.padding(top = 12.dp, bottom = 0.dp, start = 0.dp, end = 10.dp)
             )
+            Box(modifier = Modifier.weight(1f)) {
+                //var sliderPosition by remember { mutableStateOf(0f) }
+                Slider(
+                    value = uiState.rateSleepSliderPosition,
+                    onValueChange = { changeSliderPos(it) },
+                    valueRange = 1f..10f,
+                    steps = 8,
+                    enabled = uiState.rateSleepSliderEnabled,
 
-            Column(
-
-                ) {
-                Box(modifier = Modifier.height(30.dp)) {
-                    //var sliderPosition by remember { mutableStateOf(0f) }
-                    Slider(
-                        value = uiState.rateSleepSliderPosition,
-                        onValueChange = { changeSliderPos(it) },
-                        valueRange = 1f..10f,
-                        steps = 8,
-                        enabled = uiState.rateSleepSliderEnabled,
-
-                        colors = SliderDefaults.colors(
-                            thumbColor = MaterialTheme.colors.onPrimary,
-                            activeTickColor = MaterialTheme.colors.background,
-                            inactiveTickColor = MaterialTheme.colors.background,
-                            activeTrackColor = MaterialTheme.colors.onPrimary
-                        ),
-                        modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+                    colors = SliderDefaults.colors(
+                        thumbColor = MaterialTheme.colors.onPrimary,
+                        activeTickColor = MaterialTheme.colors.background,
+                        inactiveTickColor = MaterialTheme.colors.background,
+                        activeTrackColor = MaterialTheme.colors.onPrimary
                     )
-                }
-                Text(
-                    text = "How do you rate your night?",
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colors.onPrimary
                 )
             }
             Text(
                 "10",
                 fontSize = 20.sp,
                 color = MaterialTheme.colors.onPrimary,
-                modifier = Modifier
-                    .padding(top = 12.dp, bottom = 0.dp, start = 0.dp, end = 0.dp)
-                    .offset(x = 0.dp)
+                modifier = Modifier.padding(top = 12.dp, bottom = 0.dp, start = 0.dp, end = 10.dp)
             )
-
-
         }
-
+        Text(text = "How do you rate your night?")
     }
+
 }
 
 @Composable
